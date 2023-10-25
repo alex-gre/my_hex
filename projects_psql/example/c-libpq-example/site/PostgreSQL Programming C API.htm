@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html itemscope="" itemtype="http://schema.org/WebPage" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PostgreSQL Programming: C API</title>
+<link rel="canonical" href="http://www.yolinux.com/TUTORIALS/PostgreSQL-Programming-C-API.html" />
+<meta name="keywords" content="PostgreSQL,programming,C API,C functions" />
+<meta name="description" content="The PostgreSQL database can be accessed through its direct native C programming API. This tutorial demonstrates the use of the C API to access the database and perform INSERT and SELECT SQL statements. The YoLinux portal covers topics from desktop to servers and from developers to users" />
+<meta name="author" content="Greg Ippolito" />
+<link type="image/x-icon" rel="shortcut icon" href="/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css"/>
+<link rel="stylesheet" type="text/css" href="../css/yolinux-res.css"/>
+<link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shCoreYoLinux.css"/>
+<link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shThemeYoLinux.css"/>
+<script type="text/javascript" src="syntaxhighlighter/src/shCoreYoLinux.js"></script>
+<script type="text/javascript" src="syntaxhighlighter/scripts/shBrushSql.js"></script>
+<script type="text/javascript" src="syntaxhighlighter/scripts/shBrushPlain.js"></script>
+<script type="text/javascript" src="syntaxhighlighter/scripts/shBrushCpp.js"></script>
+<script type="text/javascript">
+        SyntaxHighlighter.config.clipboardSwf = 'syntaxhighlighter/scripts/clipboard.swf';
+        SyntaxHighlighter.all();
+</script>
+</head>
+
+<body>
+<a name="TOP"></a>
+<div class="container-fluid">
+
+<div class="row" itemprop="breadcrumb">
+<ol class="yo-breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+  <li class="yo-breadcrumb" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a rel="home" itemprop="item" href="/"><span itemprop="name">Home</span></a><meta itemprop="position" content="1" />
+  </li>
+  <li class="yo-breadcrumb" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="/TUTORIALS/"><span itemprop="name">Tutorials</span></a><meta itemprop="position" content="2" />
+  </li>
+  <li class="yo-breadcrumb" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="/TUTORIALS/LinuxTutorialC++.html"><span itemprop="name">C/C++</span></a><meta itemprop="position" content="3" />
+  </li>
+  <li class="yo-breadcrumb active" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="/TUTORIALS/PostgreSQL-Programming-C-API.html"><span itemprop="name">PostgreSQL C Programming API</span></a><meta itemprop="position" content="4" />
+  </li>
+</ol>
+</div>
+
+<div class="row">
+<div class="col-sm-3 top-space">
+<a href="http://www.yolinux.com/"><img src="images/YoLinux_Tutorial_logo.png" alt="Yolinux.com Tutorial" border="none" /></a>
+</div>
+<div class="col-sm-9">
+<h1>PostgreSQL Programming: C API</h1>
+<p>
+This tutorial shows the use of the PostgreSQL "C" programming API "libpq", to call native PostgreSQL "C" functions to access the database.
+</p>
+<p>
+For an introduction to installation, configuration and use of the PostgreSQL database see the <a href="LinuxTutorialPostgreSQL.html">YoLinux PostgreSQL tutorial</a>.
+</p>
+<div class="ad-head" align="center">
+<iframe class="adframe" scrolling="no" allowTransparency="true"
+marginheight="0" marginwidth="0"
+width="720" frameborder="0" height="90"
+style='border:none;width:720;height:90;padding:0;'
+src="/ADVERTISING/iframe728x90px-ValueClick.html">
+</iframe>
+</div>
+
+<p>
+</p>
+</div> <!-- end of col-sm-9 -->
+</div> <!-- end of row -->
+
+<div class="row">
+<div class="col-sm-12">
+<p>
+</p>
+    <b>Tutorial Table of Contents:</b>
+    <ul>
+      <li># <a href="#API">PostgreSQL Development API</a>
+      </li>
+      <li># <a href="#EXAMPLE">PortgreSQL C programming example</a>
+      </li>
+      <li># <a href="#LINKS">Other Links</a>
+      </li>
+    </ul>
+</div>  <!-- end col-sm-12  -->
+</div> <!-- end row -->
+
+<div class="row">
+<!-- Navigation Menu bar -->
+<div class="row row-nav-height">
+<nav class="navbar-inverse navbar-custom">
+<div class="navbar-header">
+  <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+<a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"></span> YoLinux Home</a>
+</div>
+
+<form class="navbar-form navbar-left" method="post" action="http://search.yolinux.com/cgi-bin/htsearch">
+<div class="input-group">
+<input type="hidden" name="method" value="all" /> 
+<input type="hidden" name="format" value="long" /> 
+<input type="hidden" name="sort" value="score" /> 
+<input type="hidden" name="config" value="htdig-yolinux" /> 
+<input type="hidden" name="restrict" value="" /> 
+<input type="hidden" name="exclude" value="" /> 
+<input type="text" class="form-control" placeholder="Search" size="20" maxlength="80" name="words"/> 
+    <div class="input-group-btn">
+      <button class="btn btn-default" type="submit">
+        <i class="glyphicon glyphicon-search"></i>
+      </button>
+    </div>
+</div>
+</form>
+
+<div id="navbarCollapse" class="collapse navbar-collapse">
+  <ul class="nav navbar-nav navbar-right">
+  <li><a href="/TUTORIALS/" title="YoLinux Web Site Tutorials Index"><span class="glyphicon glyphicon-list-alt"></span> <span class="nav-label">Linux Tutorials</span></a></li>
+  <li><a href="/YoLinux-Terms.html" title="YoLinux.com terms of use"><span class="glyphicon glyphicon-info-sign"></span> <span class="nav-label">Terms</span></a></li>
+  <li><a href="/privacy.html" title="YoLinux.com privacy policy"><span class="glyphicon glyphicon-briefcase"></span> <span class="nav-label">Privacy Policy</span></a></li>
+  <li><a href="/YoLinux-Advertising.html" title="Advertising rates for YoLinux.com"><span class="glyphicon glyphicon-blackboard"></span> <span class="nav-label">Advertising</span></a></li>
+  <li><a href="/YoLinuxEmailForm.html" title="Send us an email"><span class="glyphicon glyphicon-envelope"></span> <span class="nav-label">Contact</span></a></li>
+  </ul>
+</div>  <!-- end navbarCollapse -->
+
+</nav>
+</div> <!-- end of row -->
+<!-- End of Navigation menu bar -->
+
+</div>
+
+<div class="yo-row">
+<div id="leftcol">
+<div class="sectionv1">
+      <p>
+      <font size="-1">
+      <b>Related YoLinux Tutorials:</b>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="LinuxTutorialPostgreSQL.html">Linux and PostgreSQL</a>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="PostgreSQL-Transactions-ForeignKeys.html">PostgreSQL, Transactions and Foreign Keys</a>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="SQL-Workbench-Java-GUI.html">SQL Workbench/J</a>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="LinuxDatabases.html">List of Linux Databases</a>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="LinuxTutorialMySQL.html">MySQL</a>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="SQLite.html">SQLite</a>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="LinuxTutorialTomcat.html">Apache, Tomcat, MySQL and Java</a>
+      </font></p>
+      <p>
+      <font size="-1">&deg;<a href="/TUTORIALS/">YoLinux Tutorials Index</a>
+      </font>
+      </p>
+</div> <!-- end of section 1 -->
+<div class="sectionv2">
+<p>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-8567479315106986"
+     data-ad-slot="8947481941"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+<!-- END CODE -->
+<hr />
+<p>
+<a href="http://yolinux.tradepub.com/">Free Information Technology Magazines and Document Downloads<br /><img src="images/TradePubMagazines.gif" border="0" alt="TradePub link image" /></a>
+</p>
+</div> <!-- end of section v2 -->
+
+</div> <!-- end leftcol -->
+
+<div id="content">
+<a name="API"></a>
+<div class="labelbar">
+PostgreSQL C Language API:
+</div>
+
+<p>
+The PostgreSQL client "C" language API development libraries and "C" header files are available as PostgreSQL development packages. 
+This PostgreSQL API is often referred to as "libpq".
+</p>
+RHEL6 installed RPMs:
+<ul>
+<li>postgresql-8.4.11-1.el6_2.x86_64        - commands, HTML docs and man pages
+</li>
+<li>postgresql-server-8.4.11-1.el6_2.x86_64 - DB server and locale based messages
+</li>
+<li>postgresql-libs-8.4.11-1.el6_2.x86_64   - libraries and locale based messages
+</li>
+<li>postgresql-devel-8.4.11-1.el6_2.x86_64  - include files, libs and tools including a SQL to C tool (ecpg)
+</li>
+<li>postgresql-docs-8.4.11-1.el6_2.x86_64   - tutorials, examples and a monster PDF manual
+</li>
+</ul>
+Ubuntu 12.04 packages:
+<ul>
+<li>postgresql-9.1 - libraries and SQL
+</li>
+<li>postgresql-common - the database program
+</li>
+<li>postgresql-client-9.1 - utility programs and man pages
+</li>
+<li>postgresql-client-common - utility programs and man pages
+</li>
+<li>libpq5  - libpq library
+</li>
+<li>libpq-dev - Include files (<tt>/usr/include/postgresql/</tt>), libraries, pg_config
+</li>
+</ul>
+<p>
+The PostgreSQL client API has been ported to many platforms with many different compilers. 
+To help developers determine the compiling and linking flags to use on their platform use the <tt>pg_config</tt> utility program:
+</p>
+<ul>
+<li>C compile flags: <tt>pg_config --cflags</tt>
+    <br />Result: <tt>-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -Werror=format-security -fPIC -DLINUX_OOM_ADJ=0 -Wall -Wmissing-prototypes -Wpointer-arith -Wdeclaration-after-statement -Wendif-labels -Wformat-security -fno-strict-aliasing -fwrapv -fexcess-precision=standard -g</tt>
+</li>
+<li>Linker flags: <tt>pg_config --libs</tt>
+    <br />Result: <tt>-lpgport -lxslt -lxml2 -lpam -lssl -lcrypto -lkrb5 -lcom_err -lgssapi_krb5 -lz -ledit -lcrypt -ldl -lm</tt>
+</li>
+</ul>
+
+<p>
+<a name="EXAMPLE"></a>
+</p>
+<div class="labelbar">
+Example PostgreSQL C API program:
+</div>
+<p>
+</p>
+Two examples:
+<ul>
+<li># <a href="#INSERT_SELECT">Insert and select from an existing database and table from a C/C++ program</a>
+</li>
+<li># <a href="#GEN_DATABASE">Generate a new database and table and insert a record from a C/C++ program</a>
+</li>
+<li># <a href="#DROP_DATABASE">Drop a database from a C/C++ program</a>
+</li>
+</ul>
+
+<a name="INSERT_SELECT"></a>
+<div class="labelbar2">
+Insert and select from an existing database:
+</div>
+<p>
+This example will use the following example database schema and contents:
+</p>
+File: <tt>bedrock.sql</tt>
+<div class="box">
+<pre class="brush: sql">
+CREATE TABLE employee (IDpk serial NOT NULL,
+                       Employee_Name char(20),
+                       Dept char(20),
+                       JobTitle char(20),
+                       PRIMARY KEY (IDpk));
+INSERT INTO employee (Employee_Name,Dept,JobTitle) VALUES ('Fred Flinstone','Worker','Rock Digger');
+INSERT INTO employee (Employee_Name,Dept,JobTitle) VALUES ('Wilma Flinstone','Finance','Analyst');
+INSERT INTO employee (Employee_Name,Dept,JobTitle) VALUES ('Barney Rubble','Sales','Neighbor');
+</pre>
+</div>
+<p>
+</p>
+Load and verify:
+<pre class="code">
+$ sudo su - postgres
+-bash-4.1$ createdb bedrock
+-bash-4.1$ psql -d bedrock -a -f bedrock.sql
+-bash-4.1$ psql -d bedrock -c "select * from employee"
+ idpk |    employee_name     |         dept         |       jobtitle       
+------+----------------------+----------------------+----------------------
+    1 | Fred Flinstone       | Worker               | Rock Digger         
+    2 | Wilma Flinstone      | Finance              | Analyst             
+    3 | Barney Rubble        | Sales                | Neighbor            
+(3 rows)
+
+-bash-4.1$ psql bedrock
+psql (8.4.11)
+Type "help" for help.
+
+bedrock=# \d employee
+                                 Table "public.employee"
+    Column     |     Type      |                        Modifiers                        
+---------------+---------------+---------------------------------------------------------
+ idpk          | integer       | not null default nextval('employee_idpk_seq'::regclass)
+ employee_name | character(20) | 
+ dept          | character(20) | 
+ jobtitle      | character(20) | 
+Indexes:
+    "employee_pkey" PRIMARY KEY, btree (idpk)
+</pre>
+
+<p>
+</p>
+Example C/C++ program:
+
+<p>
+<b>File:</b> <tt>testPostgreSqlAPI.cpp</tt>
+</p>
+<div class="box">
+<pre class="brush: cpp">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+/* 
+ * Connect to an existing database.
+ * Insert a new record for Betty.
+ * Select full contents of the table and print all fields.
+ */
+
+static void
+exit_nicely(PGconn *conn, PGresult   *res)
+{
+    PQclear(res);
+    PQfinish(conn);
+    exit(1);
+}
+
+int
+main(int argc, char **argv)
+{
+    const char *conninfo = "dbname=bedrock sslmode=disable";
+    PGconn     *conn;
+    PGresult   *res;
+    int         nFields;
+    int         i,
+                j;
+
+    // Make a connection to the database
+    conn = PQconnectdb(conninfo);
+
+    // Check to see that the backend connection was successfully made
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(conn));
+        PQfinish(conn);
+        exit(1);
+    }
+
+    res = PQexec(conn, "INSERT INTO employee (Employee_Name,Dept,JobTitle) VALUES ('Betty Rubble','IT','Neighbor')");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "INSERT failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);
+
+    // Use cursor inside a transaction block
+
+    // Start a transaction block
+    res = PQexec(conn, "BEGIN");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);  // Clear memory
+
+    res = PQexec(conn, "DECLARE mydata CURSOR FOR select * from employee");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "DECLARE CURSOR failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);
+
+    res = PQexec(conn, "FETCH ALL in mydata");
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        fprintf(stderr, "FETCH ALL failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+
+    // first, print out the table collumn attribute names
+    nFields = PQnfields(res);
+    for (i = 0; i &lt; nFields; i++)
+        printf("%-15s", PQfname(res, i));
+    printf("\n\n");
+
+    // next, print out the rows of data
+    for (i = 0; i &lt; PQntuples(res); i++)
+    {
+        for (j = 0; j &lt; nFields; j++)
+            printf("%-15s", PQgetvalue(res, i, j));
+        printf("\n");
+    }
+
+    PQclear(res);
+
+    // close the portal ... we don't bother to check for errors ...
+    res = PQexec(conn, "CLOSE mydata");
+    PQclear(res);
+
+    // End the transaction 
+    res = PQexec(conn, "END");
+    PQclear(res);
+
+    // close the connection to the database and cleanup 
+    PQfinish(conn);
+
+    return 0;
+}
+</pre>
+</div>
+Note:
+<ul>
+<li>The query string is NOT terminated with a ";"
+</li>
+<li>PQconnectdb(): argument "conninfo" contains a keyword=value pair (spaces around "=" are optional). 
+    <br/>
+    Each pair is space delimited.
+    <br/>
+    <table class="box">
+    <thead>
+    <tr><th>Keyword</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>host</td><td> network host</td></tr>
+    <tr><td>hostaddr</td><td> IP address</td></tr>
+    <tr><td>port</td><td> TPC/IP port</td></tr>
+    <tr><td>dbname</td><td> database name</td></tr>
+    <tr><td>user</td><td> PostgreSQL user id</td></tr>
+    <tr><td>password</td><td> server authentication</td></tr>
+    <tr><td>connect_timeout</td><td> max wait time. 0=infinite.</td></tr>
+    <tr><td>options</td><td> server command line options</td></tr>
+    <tr><td>sslmode</td><td> Six modes available (disable,allow,prefer (default),verify-ca,verify-full)</td></tr>
+    <tr><td>sslcert</td><td> specify file of the client SSL certificate</td></tr>
+    <tr><td>sslrootcert</td><td> specify file of the root SSL certificate</td></tr>
+    <tr><td>sslcrl</td><td> specify file name of the SSL certificate revocation list (CRL)</td></tr>
+    <tr><td>krbsrvname</td><td> Kerberos service name</td></tr>
+    <tr><td>gsslib</td><td> MS/Windows only</td></tr>
+    <tr><td>service</td><td> specify service name listed in pg_Service.conf which holds connection parameters.</td></tr>
+    </tbody>
+    </table>
+    Environment variables can be used to specify each of the keyword values.
+</li>
+</ul>
+<p>
+</p>
+<b>Compile:</b> 
+<p>
+<tt>g++ -o testPostgreSqlAPI testPostgreSqlAPI.cpp `pg_config --cflags` `pg_config --libs`</tt>
+<br/>
+or
+<br/>
+<tt>gcc -o testPostgreSqlAPI  testPostgreSqlAPI.c -lpq</tt>
+</p>
+
+<b>Run:</b> (as user postgres) <tt>./testPostgreSqlAPI</tt>
+<pre class="code">
+-bash-4.1$ ./testPostgreSqlAPI
+idpk           employee_name       dept           jobtitle       
+
+1              Fred Flinstone      Worker              Rock Digger         
+2              Wilma Flinstone     Finance             Analyst             
+3              Barney Rubble       Sales               Neighbor 
+4              Betty Rubble        IT                  Neighbor
+</pre>
+
+<p>
+</p>
+<font color="#ff0000">[Potential Pitfall]:</font> If you get the following error:
+<pre class="code">
+[user1]$ ./testPostgreSqlDb
+Connection to database failed: FATAL:  Ident authentication failed for user "user1"
+</pre>
+<p>
+This is because the permissions of the user id of the process did not have the authority to access the database. Grant access to the user in the database or run as the authorized user "postgres": <tt>sudo su - postgres</tt>
+</p>
+<p>
+</p>
+<a name="GEN_DATABASE"></a>
+<div class="labelbar2">
+Generate a new database and table and insert a record:
+</div>
+
+<p>
+Typically when you get a connection to PostgreSQL it is always to a particular database. 
+<br/>
+To create a new PostgreSQL database, connect with no database specified.
+</p>
+<p>
+<b>File:</b> <tt>genPostgreSqlDb.cpp</tt>
+</p>
+<div class="box">
+<pre class="brush: cpp">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe&gt;
+
+static void
+exit_nicely(PGconn *conn, PGresult   *res)
+{
+    PQclear(res);
+    PQfinish(conn);
+    exit(1);
+}
+
+int
+main(int argc, char **argv)
+{
+    const char *conninfo = "sslmode=disable";
+    PGconn     *conn;
+    PGresult   *res;
+
+    //------------------------------------------------------------------------
+    // To create a new PostgreSQL database, connect with no database specified
+    conn = PQconnectdb(conninfo);
+
+    // Check to see that the backend connection was successfully made
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(conn));
+        PQfinish(conn);
+        exit(1);
+    }
+
+    res = PQexec(conn, "CREATE DATABASE adams");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "CREATE DATABASE failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);
+
+    PQfinish(conn); // Close connection
+
+    //--------------------------------------------------------
+    // Generate new connection to database adams created above
+    conn = PQconnectdb("dbname=adams");
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to adams database failed: %s", PQerrorMessage(conn));
+        PQfinish(conn);
+        exit(1);
+    }
+
+    res = PQexec(conn, "CREATE TABLE family (Name char(20),Room char(8),Phone char(24))");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "CREATE TABLE failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);
+
+    PQfinish(conn); // Close connection
+
+    //--------------------------------------------------------
+    // Generate new connection to database adams created above
+    conn = PQconnectdb("dbname=adams");
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to adams database failed: %s", PQerrorMessage(conn));
+        PQfinish(conn);
+        exit(1);
+    }
+
+    res = PQexec(conn, "CREATE TABLE family (Name char(20),Room char(8),Phone char(24))");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "CREATE TABLE failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);
+
+    res = PQexec(conn, "INSERT INTO family VALUES ('Gomez Adams', 'master', '1-555-1212')");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "INSERT failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);
+
+    // close the connection to the database and cleanup
+    PQfinish(conn);
+
+    return 0;
+}
+</pre>
+</div>
+
+<p>
+<b>Compile:</b> <tt>g++ -o genPostgreSqlDb genPostgreSqlDb.cpp `pg_config --cflags` `pg_config --libs`</tt>
+</p>
+<b>Run:</b> <tt>./genPostgreSqlDb</tt>
+<p>
+</p>
+<b>Check PostgreSQL for the database, table and data:</b>
+<pre class="code">
+-bash-4.1$ psql 
+psql (8.4.11)
+Type "help" for help.
+
+postgres=# \l
+                                  List of databases
+   Name    |  Owner   | Encoding |  Collation  |    Ctype    |   Access privileges   
+-----------+----------+----------+-------------+-------------+-----------------------
+ adams     | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ bedrock   | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres
+                                                             : postgres=CTc/postgres
+ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres
+                                                             : postgres=CTc/postgres
+(5 rows)
+
+postgres=# \c adams
+psql (8.4.11)
+You are now connected to database "adams".
+adams=# \d
+         List of relations
+ Schema |  Name  | Type  |  Owner   
+--------+--------+-------+----------
+ public | family | table | postgres
+(1 row)
+
+adams=# SELECT * FROM family;
+         name         |   room   |          phone           
+----------------------+----------+--------------------------
+ Gomez Adams          | master   | 1-555-1212              
+(1 row)
+</pre>
+<p>
+</p>
+<a name="DROP_DATABASE"></a>
+<div class="labelbar2">
+Drop a database:
+</div>
+
+<p>
+One can not be connected to a database if it is to be dropped. 
+In fact no one can be connected to it.
+<br/>
+To drop a PostgreSQL database, connect with no database specified.
+</p>
+<p>
+<b>File:</b> <tt>dropPostgreSqlDb.cpp</tt>
+</p>
+<div class="box">
+<pre class="brush: cpp">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe&gt;
+
+static void
+exit_nicely(PGconn *conn, PGresult   *res)
+{
+    PQclear(res);
+    PQfinish(conn);
+    exit(1);
+}
+
+int
+main(int argc, char **argv)
+{
+    const char *conninfo = "sslmode=disable";
+    PGconn     *conn;
+    PGresult   *res;
+
+    //------------------------------------------------------------------
+    // To drop a PostgreSQL database, connect with no database specified
+    conn = PQconnectdb(conninfo);
+
+    // Check to see that the backend connection was successfully made
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(conn));
+        PQfinish(conn);
+        exit(1);
+    }
+
+    res = PQexec(conn, "DROP DATABASE adams");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "DROP DATABASE failed: %s", PQerrorMessage(conn));
+        exit_nicely(conn,res);
+    }
+    PQclear(res);
+
+    // close the connection to the database and cleanup
+    PQfinish(conn);
+
+    return 0;
+}
+</pre>
+</div>
+
+<p>
+<b>Compile:</b> <tt>g++ -o dropPostgreSqlDb dropPostgreSqlDb.cpp `pg_config --cflags` `pg_config --libs`</tt>
+</p>
+<b>Run:</b> <tt>./dropPostgreSqlDb</tt>
+
+<p>
+</p>
+<a name="LINKS"></a>
+<div class="labelbar">
+Links:
+</div>
+
+<p>
+</p>
+<ul>
+<li><a href="http://www.postgresql.org/">PostgreSQL.com</a>:
+    <ul>
+    <li><a href="http://www.postgresql.org/docs/9.1/static/libpq.html">C API documentation</a>
+    </li>
+    </ul>
+</li>
+</ul>
+
+<p>
+</p>
+<div class="labelbar-h2">
+<img src="images/book40.gif" /> Books:
+</div>
+
+
+<p>
+</p>
+<dl>
+<dd>
+<table class="box">
+<tbody>
+
+    <tr>
+    <td><img src="../BOOKS/0735712573.01.MZZZZZZZ.jpg" /></td>
+    <td valign="top">
+    PostgreSQL
+    <br />
+    by Korry Douglas, Susan Douglas
+    <br />
+    ISBN  #0735712573, New Riders
+    <p>
+    </p>
+    </td>
+    <td valign="top">
+    <a rel="nofollow" href="http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http://www.amazon.com/exec/obidos/ASIN/0735712573/&tag=yolinux-20"><img src="images/Amazon-BuyABook88x31.gif" alt="Amazon.com" /></a>
+    <br />
+    </td>
+    </tr>
+
+    <tr>
+    <td><img src="../BOOKS/0735711216.01.MZZZZZZZ.jpg" /></td>
+    <td valign="top">
+    PostgreSQL Essential Reference
+    <br />
+    by Barry Stinson
+    <br />
+    ISBN  #0735711216, New Riders
+    <p>
+    </p>
+    </td>
+    <td valign="top">
+    <a rel="nofollow" href="http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http://www.amazon.com/exec/obidos/ASIN/0735711216/&tag=yolinux-20"><img src="images/Amazon-BuyABook88x31.gif" alt="Amazon.com" /></a>
+    <br />
+    </td>
+    </tr>
+
+    <tr>
+    <td><img src="../BOOKS/0672322609.01.MZZZZZZZ.jpg" /></td>
+    <td valign="top">
+    PostgreSQL: Developer's Handbook
+    <br />
+    by Ewald Geschwinde, Hans-Juergen Schoenig, Hans-Jurgen Schonig
+    <br />
+    ISBN  #0672322609, SAMS
+    <p>
+    </p>
+    </td>
+    <td valign="top">
+    <a rel="nofollow" href="http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http://www.amazon.com/exec/obidos/ASIN/0672322609/&tag=yolinux-20"><img src="images/Amazon-BuyABook88x31.gif" alt="Amazon.com" /></a>
+    <br />
+    </td>
+    </tr>
+
+    <tr>
+    <td><img src="../BOOKS/1565928466.01.MZZZZZZZ.jpg" /></td>
+    <td valign="top">
+    Practical PostgreSQL
+    <br />
+    John C. Worsley, Joshua D. Drake
+    <br />
+    ISBN  #1565928466, O'Reilly
+    <p>
+    </p>
+    </td>
+    <td valign="top">
+    <a rel="nofollow" href="http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http://www.amazon.com/exec/obidos/ASIN/1565928466/&tag=yolinux-20"><img src="images/Amazon-BuyABook88x31.gif" alt="Amazon.com" /></a>
+    <br />
+    </td>
+    </tr>
+
+    <tr>
+    <td><img src="../BOOKS/1861005156.01.MZZZZZZZ.jpg" /></td>
+    <td valign="top">
+    Beginning Databases with PostgreSQL
+    <br />
+    by Richard Stones, Neil Matthew
+    <br />
+    ISBN  #1861005156, Wrox Press Inc
+    <p>
+    </p>
+    </td>
+    <td valign="top">
+    <a rel="nofollow" href="http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http://www.amazon.com/exec/obidos/ASIN/1861005156/&tag=yolinux-20"><img src="images/Amazon-BuyABook88x31.gif" alt="Amazon.com" /></a>
+    <br />
+    </td>
+    </tr>
+
+</tbody>
+</table>
+
+<p>
+</p>
+<div class="lineHR">
+<p>
+</p>
+
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables.
+*
+*  When url or identifier are not defined, the Disqus embed will use the window URL as the main identifier when creating a thread.
+*/ 
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//yolinux.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+
+</div> <!-- end content -->
+
+<div id="rightcol">
+<!-- AddThis Button BEGIN -->
+<div id="bookmark">
+&nbsp;&nbsp;&nbsp;
+<br />
+<a rel="nofollow" href="http://www.addthis.com/bookmark.php?v=250&pub=yolinux" onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')" onmouseout="addthis_close()" onclick="return addthis_sendto()"><img src="http://s7.addthis.com/static/btn/lg-bookmark-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js?pub=yolinux">
+</script>
+</div>
+<!-- AddThis Button END -->
+
+<p>
+</p>
+<p>
+<font color="#505050">Advertisements</font>
+</p>
+<iframe class="adframe" scrolling="no" allowTransparency="true"
+marginheight="0" marginwidth="0"
+width="160" frameborder="0" height="600"
+style='border:none;width:160;height:600;padding:0;'
+src="/ADVERTISING/iframe160px-MediaDotNet.html">
+</iframe>
+
+<p>
+</p>
+<!-- 
+<script type="text/javascript">
+var jobthread_widget_title = "Jobs";
+var jobthread_widget_outer_style = "background-color:#dddddd;border:1px solid #999999;width:160px;";
+var jobthread_widget_inner_style = "background-color:#ffffff;color:#666666;border:1px solid #999999;margin-left:10px;margin-right:10px;padding:10px 10px 2px 8px;font:11px Arial, Helvetica, Sans-serif;line-height:16px;";
+var jobthread_widget_title_style = "color:#313131;font-weight:bold;";
+var jobthread_widget_link_style = "color:#0464bb;font-size:11px;font-weight:normal;text-decoration:none;border:none;";
+var jobthread_widget_top_style = "padding-top:8px;";
+var jobthread_widget_bottom_style = "padding-bottom:4px;";
+</script>
+<script type="text/javascript" src="http://edge.jobthread.com/widget/?id=c0e4b3&num_jobs=10"></script>
+//-->
+
+<p>
+</p>
+
+<p align="center">
+<a rel="nofollow" href="http://www.lpmagazine.org/"><img src="images/LinuxPlusMagazine.gif" border="none" /></a>
+</p>
+<p>
+</p>
+</div> <!-- end rightcol  -->
+</div> <!-- end row -->
+
+<div class="row">
+<div id="yo-footer">
+<div class="col-sm-4">
+<font size="-1" color="#ffcc33">
+<b>
+<a class="footer" href="http://www.yolinux.com">YoLinux.com Home Page</a>
+<br />
+<a class="footer" href="http://www.yolinux.com/TUTORIALS/">YoLinux Tutorial Index</a> |
+<a class="footer" href="http://www.yolinux.com/YoLinux-Terms.html">Terms</a>
+<br />
+<a class="footer" href="http://www.yolinux.com/privacy.html">Privacy Policy</a> |
+<a class="footer" href="http://www.yolinux.com/YoLinux-Advertising.html">Advertise with us</a> | 
+<a class="footer" href="http://www.yolinux.com/YoLinuxEmailForm.html">Feedback Form</a> |
+</b>
+<br />
+Unauthorized copying or redistribution prohibited.
+</font>
+</div> <!-- end col-sm-4 -->
+
+<div class="col-sm-4">
+<table class="borderless">
+<tr>
+<td align="center" valign="bottom">
+   <script src="http://www.stumbleupon.com/hostedbadge.php?s=5"></script>
+</td>
+<td align="center" valign="bottom">
+<p>
+</p>
+<!-- AddThis Button BEGIN -->
+<a rel="nofollow" href="http://www.addthis.com/bookmark.php?v=250&pub=yolinux" onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')" onmouseout="addthis_close()" onclick="return addthis_sendto()"><img src="http://s7.addthis.com/static/btn/lg-bookmark-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js?pub=yolinux">
+</script>
+<!-- AddThis Button END -->
+</td>
+</tr>
+</table>
+</div> <!-- end col-sm-4 -->
+
+<div class="col-sm-4">
+<div align="right">
+<font size="-1" color="#ffcc33"><a class="footer" href="#TOP">to top of page</a></font>
+<br />
+<script type="text/javascript"><!--
+google_ad_client = "pub-8567479315106986";
+/* 234x60, created 4/23/10 */
+google_ad_slot = "8214196957";
+google_ad_width = 234;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+</div> <!-- end col-sm-4 -->
+
+</div> <!-- end yo-footer -->
+
+</div>
+<div id="copyright">
+<p class="copyright">
+Copyright &copy; 2014 by <i>Greg Ippolito</i>
+</p>
+</div>
+
+</div> <!-- end container-fluid -->
+<!-- bootstrap nav -->
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Start Quantcast tag -->
+<script type="text/javascript">
+  var _qevents = _qevents || [];
+
+  (function() {
+   var elem = document.createElement('script');
+
+   elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
+   elem.async = true;
+   elem.type = "text/javascript";
+   var scpt = document.getElementsByTagName('script')[0];
+   scpt.parentNode.insertBefore(elem, scpt);  
+  })();
+</script>
+<script type="text/javascript">
+_qevents.push( { qacct:"p-ebIBcaVUngFBQ"} );
+</script>
+<noscript>
+<div style="display: none;"><img src="//pixel.quantserve.com/pixel/p-ebIBcaVUngFBQ.gif" height="1" width="1" alt="Quantcast"/></div>
+</noscript>
+<!-- End Quantcast tag -->
+
+
+<!-- Start Google +1 tag -->
+<!-- Place this tag in your head or just before your close body tag -->
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<!-- End Google +1 tag -->
+
+
+<!-- Start Google Analytics tag -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-3317450-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+<!-- End Google Analytics tag -->
+
+<!-- Start Advertise.com InterYield tag -->
+<!-- script src="http://interyield.td573.com/InterYield/bindevent.do?e=click&affiliate=gregipIY&subid=yolinux&ecpm=0&debug=false&snoozeMinutes=1&adCountIntervalHours=24&maxAdCountsPerInterval=2&pop=under&attributionDisabled=true&endpoint=http%3A%2F%2Finteryield.td573.com" type="text/javascript"></script -->
+<!-- End Advertise.com InterYield tag -->
+
+<!-- Google auto ads - turn it on -->
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({
+          google_ad_client: "ca-pub-8567479315106986",
+          enable_page_level_ads: true
+     });
+</script>
+
+</body>
+</html>

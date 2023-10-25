@@ -1,0 +1,763 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><script data-ezscrex=false data-cfasync=false data-pagespeed-no-defer>var __ez=__ez||{};__ez.stms=Date.now();__ez.evt={};__ez.script={};__ez.ck=__ez.ck||{};__ez.template={};__ez.template.isOrig=false;__ez.queue=function(){var e=0,i=0,t=[],n=!1,o=[],r=[],s=!0,a=function(e,i,n,o,r,s,a){var l=arguments.length>7&&void 0!==arguments[7]?arguments[7]:window,d=this;this.name=e,this.funcName=i,this.parameters=null===n?null:p(n)?n:[n],this.isBlock=o,this.blockedBy=r,this.deleteWhenComplete=s,this.isError=!1,this.isComplete=!1,this.isInitialized=!1,this.proceedIfError=a,this.fWindow=l,this.isTimeDelay=!1,this.process=function(){f("... func = "+e),d.isInitialized=!0,d.isComplete=!0,f("... func.apply: "+e);var i=d.funcName.split("."),n=null,o=this.fWindow||window;i.length>3||(n=3===i.length?o[i[0]][i[1]][i[2]]:2===i.length?o[i[0]][i[1]]:o[d.funcName]),null!=n&&n.apply(null,this.parameters),!0===d.deleteWhenComplete&&delete t[e],!0===d.isBlock&&(f("----- F'D: "+d.name),u())}},l=function(e,i,t,n,o,r,s){var a=arguments.length>7&&void 0!==arguments[7]?arguments[7]:window,l=this;this.name=e,this.path=i,this.async=o,this.defer=r,this.isBlock=t,this.blockedBy=n,this.isInitialized=!1,this.isError=!1,this.isComplete=!1,this.proceedIfError=s,this.fWindow=a,this.isTimeDelay=!1,this.isPath=function(e){return"/"===e[0]&&"/"!==e[1]},this.getSrc=function(e){return void 0!==window.__ezScriptHost&&this.isPath(e)&&"banger.js"!==this.name?window.__ezScriptHost+e:e},this.process=function(){l.isInitialized=!0,f("... file = "+e);var i=this.fWindow?this.fWindow.document:document,t=i.createElement("script");t.src=this.getSrc(this.path),!0===o?t.async=!0:!0===r&&(t.defer=!0),t.onerror=function(){var e={url:window.location.href,name:l.name,path:l.path,user_agent:window.navigator.userAgent};"undefined"!=typeof _ezaq&&(e.pageview_id=_ezaq.page_view_id);var i=encodeURIComponent(JSON.stringify(e)),t=new XMLHttpRequest;t.open("GET","//g.ezoic.net/ezqlog?d="+i,!0),t.send(),f("----- ERR'D: "+l.name),l.isError=!0,!0===l.isBlock&&u()},t.onreadystatechange=t.onload=function(){var e=t.readyState;f("----- F'D: "+l.name),e&&!/loaded|complete/.test(e)||(l.isComplete=!0,!0===l.isBlock&&u())},i.getElementsByTagName("head")[0].appendChild(t)}},d=function(e,i){this.name=e,this.path="",this.async=!1,this.defer=!1,this.isBlock=!1,this.blockedBy=[],this.isInitialized=!0,this.isError=!1,this.isComplete=i,this.proceedIfError=!1,this.isTimeDelay=!1,this.process=function(){}};function c(e){!0!==h(e)&&0!=s&&e.process()}function h(e){if(!0===e.isTimeDelay&&!1===n)return f(e.name+" blocked = TIME DELAY!"),!0;if(p(e.blockedBy))for(var i=0;i<e.blockedBy.length;i++){var o=e.blockedBy[i];if(!1===t.hasOwnProperty(o))return f(e.name+" blocked = "+o),!0;if(!0===e.proceedIfError&&!0===t[o].isError)return!1;if(!1===t[o].isComplete)return f(e.name+" blocked = "+o),!0}return!1}function f(e){var i=window.location.href,t=new RegExp("[?&]ezq=([^&#]*)","i").exec(i);"1"===(t?t[1]:null)&&console.debug(e)}function u(){++e>200||(f("let's go"),m(o),m(r))}function m(e){for(var i in e)if(!1!==e.hasOwnProperty(i)){var t=e[i];!0===t.isComplete||h(t)||!0===t.isInitialized||!0===t.isError?!0===t.isError?f(t.name+": error"):!0===t.isComplete?f(t.name+": complete already"):!0===t.isInitialized&&f(t.name+": initialized already"):t.process()}}function p(e){return"[object Array]"==Object.prototype.toString.call(e)}return window.addEventListener("load",(function(){setTimeout((function(){n=!0,f("TDELAY -----"),u()}),5e3)}),!1),{addFile:function(e,i,n,s,a,d,h,f,u){var m=new l(e,i,n,s,a,d,h,u);!0===f?o[e]=m:r[e]=m,t[e]=m,c(m)},addDelayFile:function(e,i){var n=new l(e,i,!1,[],!1,!1,!0);n.isTimeDelay=!0,f(e+" ...  FILE! TDELAY"),r[e]=n,t[e]=n,c(n)},addFunc:function(e,n,s,l,d,h,f,u,m,p){!0===h&&(e=e+"_"+i++);var w=new a(e,n,s,l,d,f,u,p);!0===m?o[e]=w:r[e]=w,t[e]=w,c(w)},addDelayFunc:function(e,i,n){var o=new a(e,i,n,!1,[],!0,!0);o.isTimeDelay=!0,f(e+" ...  FUNCTION! TDELAY"),r[e]=o,t[e]=o,c(o)},items:t,processAll:u,setallowLoad:function(e){s=e},markLoaded:function(e){if(e&&0!==e.length){if(e in t){var i=t[e];!0===i.isComplete?f(i.name+" "+e+": error loaded duplicate"):(i.isComplete=!0,i.isInitialized=!0)}else t[e]=new d(e,!0);f("markLoaded dummyfile: "+t[e].name)}},logWhatsBlocked:function(){for(var e in t)!1!==t.hasOwnProperty(e)&&h(t[e])}}}();__ez.evt.add=function(e,t,n){e.addEventListener?e.addEventListener(t,n,!1):e.attachEvent?e.attachEvent("on"+t,n):e["on"+t]=n()},__ez.evt.remove=function(e,t,n){e.removeEventListener?e.removeEventListener(t,n,!1):e.detachEvent?e.detachEvent("on"+t,n):delete e["on"+t]};__ez.script.add=function(e){var t=document.createElement("script");t.src=e,t.async=!0,t.type="text/javascript",document.getElementsByTagName("head")[0].appendChild(t)};__ez.dot={};__ez.queue.addFile('/detroitchicago/boise.js','/detroitchicago/boise.js?gcb=195-0&cb=2',true,[],true,false,true,false);</script><link rel=preconnect href=//go.ezodn.com crossorigin><link rel=preconnect href=//go.ezoic.net crossorigin><style class=ezcritcss>body{font-family:georgia;font-size:1.1rem;line-height:1.6em;background:#36393e;text-align:center;margin:0}.blu{color:#0099f7}pre{font-family:Consolas,monospace;font-size:10pt;overflow:auto}a{color:#0099f7}ul{line-height:1.8em}.last_mod{font-style:italic}.compact{line-height:1.3}#ebooks ul{list-style-type:none;padding-left:0}nav a{margin-right:.5em}header nav{background-color:#2e3136;padding:10px}header{text-align:center;background:#1e2125;padding-top:8px}header div a[title=Home]{font-family:georgia;text-align:center;font-weight:700;text-decoration:none;font-size:2em}header div{padding-top:5px;padding-bottom:5px}header div a{padding:0 15px}.ltow{width:300px;padding-left:5px;padding-right:5px;text-align:left}.content{border-left:1px solid #ebebeb;border-right:1px solid #ebebeb;padding:5px 20px;background:#fff;text-align:left;min-width:50px}.container{display:grid;gap:0;justify-content:center;align-content:center;margin-left:auto;margin-right:auto}@media(max-width:769px){.container{display:grid;margin-left:0;margin-right:0}.ltow{display:none}}@media(min-width:770px) and (max-width:1389px){.content{width:770px}.container{display:grid;grid-template-columns:770px}.ltow{display:none}}@media(min-width:1390px){.content{width:730px}.container{display:grid;grid-template-columns:310px 770px 310px}.ltow{display:block}}</style><script type=text/ez-screx>(function(){function storageAvailable(type){var storage;try{storage=window[type];var x='__storage_test__';storage.setItem(x,x);storage.removeItem(x);return true;}
+catch(e){return e instanceof DOMException&&(e.code===22||e.code===1014||e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED')&&(storage&&storage.length!==0);}}
+function remove_ama_config(){if(storageAvailable('localStorage')){localStorage.removeItem("google_ama_config");}}
+remove_ama_config()})()</script><script data-ezscrex=false data-cfasync=false>__ez.ssaf=[17,19,16];__ez.sswp=4;__ez.ssv=515915;__ez.sshsdef=false;</script><script data-ezscrex=false data-cfasync=false>__ez.queue.addFile('/tardisrocinante/screx.js','/tardisrocinante/screx.js?gcb=0&cb=4',false,['/detroitchicago/tulsa.js'],true,false,true,false);</script><script data-ezscrex=false data-cfasync=false>(function(){if("function"===typeof window.CustomEvent)return!1;window.CustomEvent=function(c,a){a=a||{bubbles:!1,cancelable:!1,detail:null};var b=document.createEvent("CustomEvent");b.initCustomEvent(c,a.bubbles,a.cancelable,a.detail);return b}})();</script><script data-ezscrex=false data-cfasync=false>__ez.queue.addFile('/detroitchicago/tulsa.js','/detroitchicago/tulsa.js?gcb=195-0&cb=7',false,[],true,false,true,false);</script><script>var ezoicTestActive=true</script><script data-ezscrex=false data-cfasync=false>var _ezaq={"ab_test_id":"mod18","ad_cache_level":1,"ad_count_adjustment":0,"ad_lazyload_version":0,"ad_load_version":1,"ad_location_ids":"","adx_ad_count":0,"ai_placeholder_cache_level":1,"ai_placeholder_placement_cnt":-1,"bidder_method":1,"bidder_version":3,"city":"Stavropol","country":"RU","days_since_last_visit":-1,"display_ad_count":0,"domain_id":407103,"ds_adsize_opt_id":-1,"engaged_time_visit":0,"ezcache_level":2,"ezcache_skip_code":0,"form_factor_id":1,"framework_id":1,"has_bad_image":0,"has_bad_words":0,"iab_category":"","is_embed":false,"is_from_recommended_pages":false,"is_return_visitor":false,"is_sitespeed":1,"last_page_load":"","last_pageview_id":"","lt_cache_level":0,"max_ads":0,"metro_code":0,"optimization_version":1,"page_ad_positions":"","page_view_count":0,"page_view_id":"c4c2199f-58f0-4c45-76bc-86b67306591d","position_selection_id":0,"postal_code":"355000","pv_event_count":0,"response_size_orig":33922,"response_time_orig":5,"serverid":"i-06384f62a3e159a2e","state":"STA","sub_page_ad_positions":"","t_epoch":1695468946,"template_id":134,"time_on_site_visit":0,"url":"https://zetcode.com/db/postgresqlc/","word_count":3401,"worst_bad_word_level":0};var _ezim_d=null;var _ezat={"domain_id":407103,"form_factor_id":1,"framework_id":1,"pageview_date":"2023-09-23","pageview_id":"c4c2199f-58f0-4c45-76bc-86b67306591d","template_id":134,"url":"https://zetcode.com/db/postgresqlc/","visit_uuid":"397b2c34-8e0a-425a-4b5f-912fad845afb"};__ez.queue.markLoaded('ezaqReady');</script><script data-ezscrex=false data-pagespeed-no-defer data-cfasync=false>__ez.queue.addFile('banger.js','/porpoiseant/banger.js?cb=195-0&bv=271&v=91&PageSpeed=off',true,[],true,false,false,true);</script><script data-ezscrex=false data-cfasync=false data-pagespeed-no-defer>__ez.queue.addFile('/parsonsmaize/abilene.js','/parsonsmaize/abilene.js?gcb=195-0&cb=28',true,[],true,false,true,false);__ez.queue.addFile('/parsonsmaize/mulvane.js','/parsonsmaize/mulvane.js?gcb=195-0&cb=5',true,['/parsonsmaize/abilene.js'],true,false,true,false);__ez.queue.addFile('/parsonsmaize/olathe.js','/parsonsmaize/olathe.js?gcb=195-0&cb=19',false,['/parsonsmaize/abilene.js','/parsonsmaize/mulvane.js'],true,false,true,false);__ez.queue.addFile('/porpoiseant/et.js','/porpoiseant/et.js?gcb=195-0&cb=2',false,[],true,false,true,false);!function(){var e;__ez.vep=(e=[],{Add:function(i,t){__ez.dot.isDefined(i)&&__ez.dot.isValid(t)&&e.push({type:"video",video_impression_id:i,domain_id:__ez.dot.getDID(),t_epoch:__ez.dot.getEpoch(0),data:__ez.dot.dataToStr(t)})},Fire:function(){if(void 0===document.visibilityState||"prerender"!==document.visibilityState){if(__ez.dot.isDefined(e)&&e.length>0)for(;e.length>0;){var i=5;i>e.length&&(i=e.length);var t=e.splice(0,i),o=__ez.dot.getURL("/detroitchicago/grapefruit.gif")+"?orig="+(!0===__ez.template.isOrig?1:0)+"&v="+btoa(JSON.stringify(t));__ez.dot.Fire(o)}e=[]}}})}();</script><script data-ezscrex=false data-cfasync=false data-pagespeed-no-defer>!function(){function e(i){return e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},e(i)}__ez.pel=function(){var i=[];function t(t,o,d,_,n,r,a,s){if(__ez.dot.isDefined(t)&&0!=__ez.dot.isAnyDefined(t.getSlotElementId,t.ElementId)){void 0===s&&(s=!1);var p=parseInt(__ez.dot.getTargeting(t,"ap")),f=__ez.dot.getSlotIID(t),u=__ez.dot.getAdUnit(t,s),z=parseInt(__ez.dot.getTargeting(t,"compid")),g=0,c=0,l=function(i){if("undefined"==typeof _ezim_d)return!1;var t=__ez.dot.getAdUnitPath(i).split("/").pop();if("object"===("undefined"==typeof _ezim_d?"undefined":e(_ezim_d))&&_ezim_d.hasOwnProperty(t))return _ezim_d[t];for(var o in _ezim_d)if(o.split("/").pop()===t)return _ezim_d[o];return!1}(t);"object"==e(l)&&(void 0!==l.creative_id&&(c=l.creative_id),void 0!==l.line_item_id&&(g=l.line_item_id)),__ez.dot.isDefined(f,u)&&__ez.dot.isValid(o)&&("0"===f&&!0!==s||""===u||i.push({type:"impression",impression_id:f,domain_id:__ez.dot.getDID(),unit:u,t_epoch:__ez.dot.getEpoch(0),revenue:d,est_revenue:_,ad_position:p,ad_size:"",bid_floor_filled:n,bid_floor_prev:r,stat_source_id:a,country_code:__ez.dot.getCC(),pageview_id:__ez.dot.getPageviewId(),comp_id:z,line_item_id:g,creative_id:c,data:__ez.dot.dataToStr(o),is_orig:s||__ez.template.isOrig}))}}function o(){void 0!==document.visibilityState&&"prerender"===document.visibilityState||(__ez.dot.isDefined(i)&&i.length>0&&[i.filter((function(e){return e.is_orig})),i.filter((function(e){return!e.is_orig}))].forEach((function(e){for(;e.length>0;){var i=e[0].is_orig||!1,t=5;t>e.length&&(t=e.length);var o=e.splice(0,t),d=__ez.dot.getURL("/porpoiseant/army.gif")+"?orig="+(!0===i?1:0)+"&sts="+btoa(JSON.stringify(o));(void 0!==window.isAmp&&isAmp||void 0!==window.ezWp&&ezWp)&&void 0!==window._ezaq&&_ezaq.hasOwnProperty("domain_id")&&(d+="&visit_uuid="+_ezaq.visit_uuid),__ez.dot.Fire(d)}})),i=[])}return{Add:t,AddAndFire:function(e,i){t(e,i,0,0,0,0,0),o()},AddAndFireOrig:function(e,i){t(e,i,0,0,0,0,0,!0),o()},AddById:function(e,t,o,d){var _=e.split("/");if(__ez.dot.isDefined(e)&&3===_.length&&__ez.dot.isValid(t)){var n=_[0],r={type:"impression",impression_id:_[2],domain_id:__ez.dot.getDID(),unit:n,t_epoch:__ez.dot.getEpoch(0),pageview_id:__ez.dot.getPageviewId(),data:__ez.dot.dataToStr(t),is_orig:o||__ez.template.isOrig};void 0!==d&&(r.revenue=d),i.push(r)}},Fire:o,GetPixels:function(){return i}}}()}();__ez.queue.addFile('/detroitchicago/raleigh.js','/detroitchicago/raleigh.js?gcb=195-0&cb=6',false,['/parsonsmaize/abilene.js'],true,false,true,false);__ez.queue.addFile('/detroitchicago/vista.js','/detroitchicago/vista.js?gcb=195-0&cb=5',false,['/parsonsmaize/abilene.js'],true,false,true,false);__ez.queue.addFile('/detroitchicago/tampa.js','/detroitchicago/tampa.js?gcb=195-0&cb=5',false,['/parsonsmaize/abilene.js'],true,false,true,false);</script><base href=https://zetcode.com/db/postgresqlc/><title>PostgreSQL C - PostgreSQL programming in C</title><link rel=preload href="/cfg/style.css?ez_used_css_s=13" as=style onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel=stylesheet href="/cfg/style.css?ff=1&amp;wps=true&amp;ez_used_css_s=13"></noscript><meta name=viewport content="width=device-width,initial-scale=1"><meta name=keywords content="C programming language,PostgreSQL,tutorial,C API,database"><meta name=description content="This is PostgreSQL tutorial. This tutorial covers the
+basics of PostgreSQL programming in C language."><meta name=author content="Jan Bodnar"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-5536206-1','auto');ga('send','pageview');</script><script data-cfasync=false>__ez.queue.addFile('/tardisrocinante/lazy_load.js','/tardisrocinante/lazy_load.js?gcb=0&cb=5',false,[],true,false,true,false);</script><link rel=canonical href=https://zetcode.com/db/postgresqlc/><script>var ezouid="1";</script><script>var ezoTemplate='pub_site';if(typeof ezouid=='undefined')
+{var ezouid='none';}
+var ezoFormfactor='1';</script><script data-ezscrex=false>var soc_app_id='0';var did=407103;var ezdomain='zetcode.com';var ezoicSearchable=1;</script><script data-ezscrex=false data-pagespeed-no-defer data-cfasync=false>function create_ezolpl(){var d=new Date();d.setTime(d.getTime()+(365*24*60*60*1000));var expires="expires="+d.toUTCString();__ez.ck.setByCat("ezux_lpl_407103="+new Date().getTime()+"|"+_ezaq.page_view_id+"|"+_ezaq.is_return_visitor+"; "+expires,3);}
+function attach_ezolpl(){if(document.readyState==="complete"){create_ezolpl();return;}
+window.addEventListener("load",create_ezolpl);}
+__ez.queue.addFunc("attach_ezolpl","attach_ezolpl",null,false,['/detroitchicago/boise.js'],true,false,false,false);</script></head><body><header><div><a href=/ title=Home>ZetCode</a></div><nav><a title="All tutorials" href=/all/>All</a>
+<a title="Go tutorials" href=/all/#go>Golang</a>
+<a title="Python tutorials" href=/all/#python>Python</a>
+<a title="C# tutorials" href=/all/#csharp>C#</a>
+<a title="Java tutorials" href=/all/#java>Java</a>
+<a title="JavaScript tutorials" href=/all/#js>JavaScript</a>
+<a title=Donate href=/donate/>Donate</a>
+<a title="Subscribe to ZetCode news" href="http://zetcode.us13.list-manage.com/subscribe?u=9def9ccd4c70dbbaf691f90fc&amp;id=6556210f80">Subscribe</a></nav></header><span id=ezoic-pub-ad-placeholder-101 class=ezoic-adpicker-ad></span><div class=container><div class=ltow><div id=ebooks><span id=ezoic-pub-ad-placeholder-152 class=ezoic-adpicker-ad></span><h2 class=blu>Ebooks</h2><ul><li><a href=/ebooks/advancedpyqt5/>PyQt5 ebook</a><li><a href=/ebooks/tkinter/>Tkinter ebook</a><li><a href=/ebooks/sqlitepython/>SQLite Python</a><li><a href=/ebooks/advancedwxpython/>wxPython ebook</a><li><a href=/ebooks/windowsapi/>Windows API ebook</a><li><a href=/ebooks/advancedjavaswing/>Java Swing ebook</a><li><a href=/ebooks/javagames/>Java games ebook</a><li><a href=/ebooks/mysqljava/>MySQL Java ebook</a></ul></div><span id=ezoic-pub-ad-placeholder-128 class=ezoic-adpicker-ad></span></div><div class=content><h1>PostgreSQL C</h1><p class=last_mod>last modified July 6, 2020<p>This is a C programming tutorial for the PostgreSQL database. It covers the basics
+of PostgreSQL programming with the C API.<h2><span id=ezoic-pub-ad-placeholder-131 class=ezoic-adpicker-ad></span>About PostgreSQL database</h2><p>PostgreSQL is a powerful, open source, object-relational database system. It is a multi-user
+database management system. It runs on multiple platforms, including Linux, FreeBSD,
+Solaris, Microsoft Windows, and Mac OS X. PostgreSQL is developed by
+the PostgreSQL Global Development Group.<p>PostgreSQL has sophisticated features such as Multi-Version Concurrency Control (MVCC),
+point in time recovery, tablespaces, asynchronous replication, nested transactions
+(savepoints), online/hot backups, a sophisticated query planner/optimizer, and write ahead
+logging for fault tolerance. It supports international character sets, multibyte character
+encodings, Unicode, and it is locale-aware for sorting, case-sensitivity, and formatting.<h2>Installation</h2><p>We are going to install PostgreSQL database and the C development library.<pre class=compact>$ sudo apt-get install postgresql
+</pre><p>On a Debian-based system, we can install the PostgreSQL database from the packages
+using the above command.<pre class=compact>$ sudo update-rc.d -f postgresql remove
+ Removing any system startup links for /etc/init.d/postgresql ...
+   /etc/rc0.d/K21postgresql
+   /etc/rc1.d/K21postgresql
+   /etc/rc2.d/S19postgresql
+   /etc/rc3.d/S19postgresql
+   /etc/rc4.d/S19postgresql
+   /etc/rc5.d/S19postgresql
+   /etc/rc6.d/K21postgresql
+</pre><p>If we install the PostgreSQL database from packages, it is automatically added to
+the startup scripts of the operating system. If we are only learning to work with
+the database, it is unnecessary to start the database each time we boot the system.
+The above command removes any system startup links for the PostgreSQL database.<pre class=compact>$ sudo apt-get install libpq-dev
+</pre><p>To be able to compile C examples, we need to install the PostgreSQL C development
+libraries. The above line shows how we can do it on Debian-based Linux.<pre class=compact>$ sudo -u postgres psql postgres
+psql (9.3.9)
+Type &#34;help&#34; for help.
+
+postgres=# \password postgres
+</pre><p>We set a password for the <code>postgres</code> user.<h2><span id=ezoic-pub-ad-placeholder-132 class=ezoic-adpicker-ad></span>Starting and stopping PostgreSQL</h2><p>In the next section, we are going to show how to start the PostgreSQL database,
+stop it, and query its status.<pre class=compact>$ sudo service postgresql start
+ * Starting PostgreSQL 9.3 database server     [ OK ]
+</pre><p>On Debian-based Linux, we can start the server with the <code>service postgresql start</code> command.<pre class=compact>$ sudo service postgresql status
+9.3/main (port 5432): online
+</pre><p>We use the <code>service postgresql status</code> command to check if PostgreSQL
+is running.<pre class=compact>$ sudo service postgresql stop
+ * Stopping PostgreSQL 9.3 database server     [ OK ]
+</pre><p>We use the <code>service postgresql stop</code> command to stop PostgreSQL.<pre class=compact>$ service postgresql status
+9.3/main (port 5432): down
+</pre><p>At this moment, the <code>service postgresql status</code> command reports that
+the PostgreSQL database is down.<h2>Creating a user and a database</h2><p>In the following steps, we create a new database user and database.<pre class=compact>$ sudo -u postgres createuser janbodnar
+</pre><p>We create a new role in the PostgreSQL system. We allow it to have ability to create
+new databases. A role is a user in a database world. Roles are separate from operating
+system users.<pre class=compact>$ sudo -u postgres psql postgres
+psql (9.3.9)
+Type &#34;help&#34; for help.
+
+postgres=# ALTER USER janbodnar WITH password &#39;pswd37&#39;;
+ALTER ROLE
+postgres=# \q
+</pre><p>With the <code>psql</code> command, we add a password for the new user.<p>PostgreSQL often uses <em>trust</em> or <em>peer</em> authentication policies
+on local connections. In case of the <em>trust</em> authentication policy, PostgreSQL assumes
+that anyone who can connect to the server is authorized to access
+the database with whatever database user name they specify (even superuser names).
+When making connections to the database, no password is required.
+(The restrictions made in the database and user columns still apply.)
+The trust authentication is appropriate and very convenient for local connections on a
+single-user workstation. It is usually not appropriate on a multiuser machine.
+In case of the <em>peer</em> authentication policy, the database username must
+match the operating system username.<pre class=compact>$ sudo -u postgres createdb testdb --owner janbodnar
+</pre><p>With the <code>createdb</code> command, we create a new database called <code>testdb</code>.
+Its owner is the new database user.<h2><span id=ezoic-pub-ad-placeholder-133 class=ezoic-adpicker-ad></span>C99</h2><p>This tutorial uses C99. For GNU C compiler, we need to add the -std=c99 option.
+For Windows users, the Pelles C IDE is highly recommended. (MSVC does not support C99.)<pre class=compact>PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+</pre><p>In C99, we can mix declarations with code. In older C programs, we would
+need to separate this line into two lines.<pre class=compact>for(int i=0; i&lt;rows; i++) {
+</pre><p>We can also use initial for loop declarations.<h2>The libpq library</h2><p>The <code>libpq</code> library is the C interface to PostgreSQL.
+It is a set of library functions that allow client programs to interact with PostgreSQL.
+It is also the underlying engine for several other PostgreSQL application interfaces,
+including those written for C++, Perl, PHP, Ruby, Python, and Tcl.<div class=codehead>lib_version.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+int main() {
+    
+    int lib_ver = PQlibVersion();
+
+    printf(&#34;Version of libpq: %d\n&#34;, lib_ver);
+    
+    return 0;
+}
+</pre><p>The program prints the version of the <code>libpq</code> library.<pre class=explanation>#include &lt;libpq-fe.h&gt;
+</pre><p>The <code>libpq-fe.h</code> file contains definitions of enumerations, structures,
+constants, and functions of the C programming interface.<pre class=explanation>int lib_ver = PQlibVersion();
+</pre><p>The <code>PQlibVersion</code> function returns the version of the <code>libpq</code>
+being used.<pre class=compact>$ pg_config --includedir
+/usr/include/postgresql
+$ pg_config --libdir
+/usr/lib
+</pre><p>The <code>pg_config</code> tool is used to find out the location of
+the C header files and object code libraries.<pre class=compact>$ gcc -o lib_version lib_version.c -I/usr/include/postgresql -lpq -std=c99
+</pre><p>With the above command, we compile the program.<pre class=compact>$ ./lib_version 
+Version of libpq: 90309
+</pre><p>The version of the library is 9.3.9.<h2><span id=ezoic-pub-ad-placeholder-134 class=ezoic-adpicker-ad></span>Server version</h2><p>In the following example, we find out the version of the PostgreSQL
+database.<div class=codehead>server_version.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+
+    int ver = PQserverVersion(conn);
+
+    printf(&#34;Server version: %d\n&#34;, ver);
+    
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>The example connects to the PostgreSQL database, executes a <code>PQserverVersion</code>
+function, prints the version, closes the connection, and cleans up.<pre class=compact>...
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# &#34;local&#34; is for Unix domain socket connections only
+local   all             all                                     peer
+...
+</pre><p>In the <code>pg_hba.conf</code>, we have the <code>peer</code> default authentication
+method. In this method, the database user name must match the operating system user
+name. No password is required to make a connection.<pre class=explanation>PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+</pre><p>With the <code>PQconnectdb</code> function, we make a connection to the database.
+In the connection string, we provide the user name and the database name.<pre class=explanation>if (PQstatus(conn) == CONNECTION_BAD) {
+    
+    fprintf(stderr, &#34;Connection to database failed: %s&#34;,
+        PQerrorMessage(conn));
+    do_exit(conn);
+}
+</pre><p>The <code>PQstatus</code> function returns the status of the connection.
+In case of a successfull connection, <code>CONNECTION_OK</code> is returned;
+for unsuccessfull connection, <code>CONNECTION_BAD</code> is returned.
+The <code>PQerrorMessage</code> returns the most recently generated error
+message.<pre class=explanation>int ver = PQserverVersion(conn);
+</pre><p>The <code>PQserverVersion</code> function returns an integer representing
+the PostgreSQL database version. It takes the connection object as
+a parameter.<pre class=explanation>PQfinish(conn);
+</pre><p>The <code>PQfinish</code> function closes the connection to the server and frees the memory
+used by the <code>PGconn</code> object.<pre class=compact>$ ./server_version 
+Server version: 90309
+</pre><p>Running the program, we get the database server version.<h2>Authentication with a password</h2><p>Next, we are going to authenticate to the database server
+with a password. In all other examples in this tutorial, we
+assume the <code>peer</code> or <code>trust</code> authentication
+mode. We change the authentication type for
+the local connection inside the <code>pg_hba.conf</code> file to <code>md5</code>.<pre class=compact>$ sudo service postgresql restart
+</pre><p>To apply the changes, the database server must be restarted.<div class=codehead>password_authentication.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar password=pswd37 dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+    
+    char *user = PQuser(conn);
+    char *db_name = PQdb(conn);
+    char *pswd = PQpass(conn);
+    
+    printf(&#34;User: %s\n&#34;, user);
+    printf(&#34;Database name: %s\n&#34;, db_name);
+    printf(&#34;Password: %s\n&#34;, pswd);
+    
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>In the example, we connect to the database with a password. We print
+the username, database name, and the password of the current database connection.<pre class=explanation>PGconn *conn = PQconnectdb(&#34;user=janbodnar password=pswd37 dbname=testdb&#34;);
+</pre><p>In the connection string, we add the password option.<pre class=explanation>char *user = PQuser(conn);
+</pre><p>The <code>PQuser</code> function returns the user name of the connection.<pre class=explanation>char *db_name = PQdb(conn);
+</pre><p>The <code>PQdb</code> function returns the database name of the connection.<pre class=explanation>char *pswd = PQpass(conn);
+</pre><p>The <code>PQpass</code> function returns the password of the connection.<pre class=compact>$ ./password_authentication 
+User: janbodnar
+Database name: testdb
+Password: pswd37
+</pre><p>The program prints the database user, the database name, and the password used.<h2><span id=ezoic-pub-ad-placeholder-135 class=ezoic-adpicker-ad></span>Creating a database table</h2><p>In this section, we create a database table and fill it with
+data.<div class=codehead>create_table.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn, PGresult *res) {
+    
+    fprintf(stderr, &#34;%s\n&#34;, PQerrorMessage(conn));    
+
+    PQclear(res);
+    PQfinish(conn);    
+    
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+            
+        PQfinish(conn);
+        exit(1);
+    }
+
+    PGresult *res = PQexec(conn, &#34;DROP TABLE IF EXISTS Cars&#34;);
+    
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);
+    }
+    
+    PQclear(res);
+    
+    res = PQexec(conn, &#34;CREATE TABLE Cars(Id INTEGER PRIMARY KEY,&#34; \
+        &#34;Name VARCHAR(20), Price INT)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res); 
+    }
+    
+    PQclear(res);
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(1,&#39;Audi&#39;,52642)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) 
+        do_exit(conn, res);     
+    
+    PQclear(res);    
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(2,&#39;Mercedes&#39;,57127)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);   
+    }
+    
+    PQclear(res);    
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(3,&#39;Skoda&#39;,9000)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);   
+    }
+    
+    PQclear(res);  
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(4,&#39;Volvo&#39;,29000)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);   
+    }
+    
+    PQclear(res);      
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(5,&#39;Bentley&#39;,350000)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);   
+    }
+    
+    PQclear(res);  
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(6,&#39;Citroen&#39;,21000)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);   
+    }
+    
+    PQclear(res);  
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(7,&#39;Hummer&#39;,41400)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);   
+    }
+    
+    PQclear(res);  
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(8,&#39;Volkswagen&#39;,21600)&#34;);
+        
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        do_exit(conn, res);   
+    }
+    
+    PQclear(res);  
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>The created table is called <code>Cars</code> and it has three columns:
+the Id, the name of the car, and its price.<pre class=explanation>PGresult *res = PQexec(conn, &#34;DROP TABLE IF EXISTS Cars&#34;);
+</pre><p>The <code>PQexec</code> function submits an SQL command to the server and waits
+for the result. The <code>PGresult</code> encapsulates the result of a query.
+Our SQL command drops a table if it already exists.<pre class=explanation>if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+    do_exit(conn, res);
+}
+</pre><p>The <code>PQresultStatus</code> function should be called to check the
+return value for any errors. The <code>PGRES_COMMAND_OK</code> is returned if
+the command was properly executed and it does not return data.<pre class=explanation>PQclear(res);
+</pre><p>Every command result should be freed with the <code>PQclear</code> function
+when it is no longer needed.<pre class=compact>$ ./create_table 
+$ psql testdb
+psql (9.3.9)
+Type &#34;help&#34; for help.
+
+testdb=&gt; SELECT * FROM Cars;
+ id |    name    | price  
+----+------------+--------
+  1 | Audi       |  52642
+  2 | Mercedes   |  57127
+  3 | Skoda      |   9000
+  4 | Volvo      |  29000
+  5 | Bentley    | 350000
+  6 | Citroen    |  21000
+  7 | Hummer     |  41400
+  8 | Volkswagen |  21600
+(8 rows)
+</pre><p>We execute the program and verify the created table with the
+<code>psql</code> tool.<h2><span id=ezoic-pub-ad-placeholder-136 class=ezoic-adpicker-ad></span>Simple query</h2><p>In this section, we execute a simple query command.<div class=codehead>query_version.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+
+    PGresult *res = PQexec(conn, &#34;SELECT VERSION()&#34;);    
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+
+        printf(&#34;No data retrieved\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }    
+
+    printf(&#34;%s\n&#34;, PQgetvalue(res, 0, 0));
+
+    PQclear(res);
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>The example gets the version of the database server.<pre class=explanation>PGresult *res = PQexec(conn, &#34;SELECT VERSION()&#34;);
+</pre><p>The <code>SELECT VERSION</code> SQL statement retrieves the version of
+the database.<pre class=explanation>if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+
+    printf(&#34;No data retrieved\n&#34;);        
+    PQclear(res);
+    do_exit(conn);
+}    
+</pre><p>The <code>PGRES_TUPLES_OK</code> is returned for a query that returns data
+by the <code>PQresultStatus</code> function.<pre class=explanation>printf(&#34;%s\n&#34;, PQgetvalue(res, 0, 0));
+</pre><p>The <code>PQgetvalue</code> function returns a single field value of one row of a
+<code>PGresult</code>.<pre class=compact>$ ./query_version 
+PostgreSQL 9.3.9 on x86_64-unknown-linux-gnu, compiled by gcc (Ubuntu 4.8.4-2ubuntu1~14.04) 4.8.4, 64-bit
+</pre><p>The program prints this output.<h2><span id=ezoic-pub-ad-placeholder-137 class=ezoic-adpicker-ad></span>Retrieving multiple rows of data</h2><p>The following example executes a query that returns multiple rows
+of data.<div class=codehead>multiple_rows.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+
+    PGresult *res = PQexec(conn, &#34;SELECT * FROM Cars LIMIT 5&#34;);    
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+
+        printf(&#34;No data retrieved\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }    
+    
+    int rows = PQntuples(res);
+    
+    for(int i=0; i&lt;rows; i++) {
+        
+        printf(&#34;%s %s %s\n&#34;, PQgetvalue(res, i, 0), 
+            PQgetvalue(res, i, 1), PQgetvalue(res, i, 2));
+    }    
+
+    PQclear(res);
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>The program prints the data of the first five rows of the <code>Cars</code> table.<pre class=explanation>PGresult *res = PQexec(conn, &#34;SELECT * FROM Cars LIMIT 5&#34;);
+</pre><p>This SQL query returns five rows of data.<pre class=explanation>int rows = PQntuples(res);
+</pre><p>The <code>PQntuples</code> returns the number of rows in the query result.<pre class=explanation>for(int i=0; i&lt;rows; i++) {
+    
+    printf(&#34;%s %s %s\n&#34;, PQgetvalue(res, i, 0), 
+        PQgetvalue(res, i, 1), PQgetvalue(res, i, 2));
+}    
+</pre><p>In the for loop, we get all three fields of a row
+with the <code>PQgetvalue</code> function.<pre class=compact>$ ./multiple_rows 
+1 Audi 52642
+2 Mercedes 57127
+3 Skoda 9000
+4 Volvo 29000
+5 Bentley 350000
+</pre><p>This is the output of the <code>multiple_rows</code> program.<h2><span id=ezoic-pub-ad-placeholder-138 class=ezoic-adpicker-ad></span>Prepared statements</h2><p>Prepared statements guard against SQL injections and increase performance. When using
+prepared statements, we use placeholders instead of directly writing the values into
+the statements.<div class=codehead>prepared_statement.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main(int argc, char *argv[]) {
+    
+    const int LEN = 10;
+    const char *paramValues[1];
+    
+    if (argc != 2) {
+    
+        fprintf(stderr, &#34;Usage: prepared_statement rowId\n&#34;);
+        exit(1);
+    }
+    
+    int rowId;
+    int ret = sscanf(argv[1], &#34;%d&#34;, &amp;rowId);
+    
+    if (ret != 1) {
+        fprintf(stderr, &#34;The argument must be an integer\n&#34;);
+        exit(1);
+    }
+    
+    if (rowId &lt; 0) {
+        fprintf(stderr, &#34;Error passing a negative rowId\n&#34;);
+        exit(1);        
+    }
+   
+    char str[LEN];
+    snprintf(str, LEN, &#34;%d&#34;, rowId);  
+    paramValues[0] = str;  
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+    
+    char *stm = &#34;SELECT * FROM Cars WHERE Id=$1&#34;;
+    PGresult *res = PQexecParams(conn, stm, 1, NULL, paramValues, 
+        NULL, NULL, 0);    
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+
+        printf(&#34;No data retrieved\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }    
+
+    printf(&#34;%s %s %s\n&#34;, PQgetvalue(res, 0, 0), 
+        PQgetvalue(res, 0, 1), PQgetvalue(res, 0, 2));    
+
+    PQclear(res);
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>The program takes a row Id as its argument. It fetches the
+data of the specified row and prints it. Since the program takes a value from
+a user, which cannot be trusted, we must sanitize the input data.
+A prepared statement is created with a <code>PQexecParams</code> function.<pre class=explanation>int rowId;
+int ret = sscanf(argv[1], &#34;%d&#34;, &amp;rowId);
+</pre><p>The command line argument is stored in the <code>rowId</code> variable.
+We expect an integer value.<pre class=explanation>char str[LEN];
+snprintf(str, LEN, &#34;%d&#34;, rowId);  
+paramValues[0] = str;  
+</pre><p>The value is transformed into a string and passed to an array of
+characters. The <code>paramValues</code> is a parameter of the <code>PQexecParams</code>
+function.<pre class=explanation>char *stm = &#34;SELECT * FROM Cars WHERE Id=$1&#34;;
+</pre><p>This is our SQL statement, which returns one row of the Cars table.
+The <code>$1</code> is a placeholder, which is later filled
+with an actual value.<pre class=explanation>PGresult *res = PQexecParams(conn, stm, 1, NULL, paramValues, 
+    NULL, NULL, 0);   
+</pre><p>The <code>PQexecParams</code> function creates a prepared statement
+and executes it. The second parameter is the SQL statement. The third
+parameter is the number of parameters passed. Passing NULL to the
+fourth parameter means that the server should figure out the parameter
+types. The fifth parameter is a pointer to an array of strings containing
+parameters. The next two parameters are only relevant with binary
+parameters. Passing 0 to the final parameter we obtain result
+in text format, 1 in binary format.<pre class=explanation>printf(&#34;%s %s %s\n&#34;, PQgetvalue(res, 0, 0), 
+    PQgetvalue(res, 0, 1), PQgetvalue(res, 0, 2));
+</pre><p>We print the three fields of the specified row.<pre class=compact>$ ./prepared_statement 4
+4 Volvo 29000
+</pre><p>This is the output of the example.<h2>Metadata</h2><p>Metadata is information about the data in the database. The following
+belongs to metadata: information about the tables and columns in which we
+store data, the number of rows affected by an SQL statement, or the number
+of rows and columns returned in a result set.<h3>Column headers</h3><p>In the first example, we print column headers.<div class=codehead>column_headers.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+    
+    PGresult *res = PQexec(conn, &#34;SELECT * FROM Cars WHERE Id=0&#34;);    
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+
+        printf(&#34;No data retrieved\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }       
+    
+    int ncols = PQnfields(res);
+    
+    printf(&#34;There are %d columns\n&#34;, ncols);
+    
+    printf(&#34;The column names are:\n&#34;);
+    
+    for (int i=0; i&lt;ncols; i++) {
+        
+        char *name = PQfname(res, i);
+        printf(&#34;%s\n&#34;, name);
+    }
+
+    PQclear(res);
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>The example prints the number of available columns and
+their names to the console.<pre class=explanation>PGresult *res = PQexec(conn, &#34;SELECT * FROM Cars WHERE Id=0&#34;);
+</pre><p>In the SQL statement, we select all columns of a row.<pre class=explanation>int ncols = PQnfields(res);
+</pre><p>The <code>PQnfields</code> function returns the number of
+columns in the row of the query result.<pre class=explanation>char *name = PQfname(res, i);
+</pre><p>The <code>PQfname</code> function returns the column name associated
+with the given column number.<pre class=compact>$ ./column_headers 
+There are 3 columns
+The column names are:
+id
+name
+price
+</pre><p>This is the output of the example.<h3>Listing tables</h3><p>The PostgreSQL's <em>information schema</em> consists of a set of views that contain
+information about the objects defined in the current database. The <code>tables</code>
+view contains all tables and views defined in the current database.<div class=codehead>list_tables.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+    
+    PGresult *res = PQexec(conn, &#34;SELECT table_name FROM information_schema.tables &#34;
+                    &#34;WHERE table_schema = &#39;public&#39;&#34;);    
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+
+        printf(&#34;No data retrieved\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }       
+    
+    int rows = PQntuples(res);
+    
+    for(int i=0; i&lt;rows; i++) {
+        
+        printf(&#34;%s\n&#34;, PQgetvalue(res, i, 0));
+    }        
+    
+    PQclear(res);
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>The example prints all the tables in the <code>testdb</code> database.<pre class=explanation>PGresult *res = PQexec(conn, &#34;SELECT table_name FROM information_schema.tables &#34;
+                &#34;WHERE table_schema = &#39;public&#39;&#34;); 
+</pre><p>This SQL statement selects all tables from the current database.<pre class=explanation>int rows = PQntuples(res);
+
+for(int i=0; i&lt;rows; i++) {
+    
+    printf(&#34;%s\n&#34;, PQgetvalue(res, i, 0));
+}    
+</pre><p>The tables are printed to the console.<pre class=compact>$ ./list_tables 
+cars
+authors
+books
+</pre><p>The <code>list_tables</code> program prints available tables in the <code>testdb</code> database.<h2><span id=ezoic-pub-ad-placeholder-139 class=ezoic-adpicker-ad></span>Transactions</h2><p>A <em>transaction</em> is an atomic unit of database operations against the data in one or
+more databases. SQL statements in a transaction can be either all committed to the database or
+all rolled back. SQL statements are put into transactions for data safety and integrity.<p>PostgreSQL operates in the <em>autocommit</em> mode. Every SQL statement is executed within a transaction:
+each individual statement has an implicit <code>BEGIN</code> and (if successful) <code>COMMIT</code> wrapped around it.<p>An explicit transaction is started with the <code>BEGIN</code> command and ended with the
+<code>COMMIT</code> command.<div class=codehead>transaction.c</div><pre class=code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;libpq-fe.h&gt;
+
+void do_exit(PGconn *conn) {
+    
+    PQfinish(conn);
+    exit(1);
+}
+
+int main() {
+    
+    PGconn *conn = PQconnectdb(&#34;user=janbodnar dbname=testdb&#34;);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        
+        fprintf(stderr, &#34;Connection to database failed: %s\n&#34;,
+            PQerrorMessage(conn));
+        do_exit(conn);
+    }
+
+    PGresult *res = PQexec(conn, &#34;BEGIN&#34;);    
+    
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+
+        printf(&#34;BEGIN command failed\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }    
+    
+    PQclear(res);   
+    
+    res = PQexec(conn, &#34;UPDATE Cars SET Price=23700 WHERE Id=8&#34;);    
+    
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+
+        printf(&#34;UPDATE command failed\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }    
+    
+    res = PQexec(conn, &#34;INSERT INTO Cars VALUES(9,&#39;Mazda&#39;,27770)&#34;);    
+    
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+
+        printf(&#34;INSERT command failed\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }       
+    
+    res = PQexec(conn, &#34;COMMIT&#34;); 
+    
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+
+        printf(&#34;COMMIT command failed\n&#34;);        
+        PQclear(res);
+        do_exit(conn);
+    }       
+    
+    PQclear(res);      
+    PQfinish(conn);
+
+    return 0;
+}
+</pre><p>In the example, we update the price of a car and insert a new car.
+The two operations are included in a single transaction. This means
+that either both operations are executed or none.<pre class=explanation>PGresult *res = PQexec(conn, &#34;BEGIN&#34;);
+</pre><p>A transaction is started with the <code>BEGIN</code> command.<pre class=explanation>res = PQexec(conn, &#34;UPDATE Cars SET Price=23700 WHERE Id=8&#34;);
+</pre><p>We update the price of a car with Id 8.<pre class=explanation>res = PQexec(conn, &#34;INSERT INTO Cars VALUES(9,&#39;Mazda&#39;,27770)&#34;);
+</pre><p>A new car is inserted into the <code>Cars</code> table.<pre class=explanation>res = PQexec(conn, &#34;COMMIT&#34;);
+</pre><p>The transaction is committed with the <code>COMMIT</code> command.<p>This was PostgreSQL C API tutorial. You may be also interested in
+<a href=/db/postgresqlphp/>PostgreSQL PHP tutorial</a>,
+<a href=/db/sqlitec/>SQLite C tutorial</a>, or <a href=/db/mysqlc/>MySQL C tutorial</a> on ZetCode.</div></div><footer><span id=ezoic-pub-ad-placeholder-102 class=ezoic-adpicker-ad></span><nav><a title="Home page" href=/>Home</a>
+<a title="Follow on Twitter" href=https://twitter.com/janbodnar>Twitter</a>
+<a title="Visit Github" href=https://github.com/janbodnar>Github</a>
+<a title="Subscribe to ZetCode news" href="http://zetcode.us13.list-manage.com/subscribe?u=9def9ccd4c70dbbaf691f90fc&amp;id=6556210f80">Subscribe</a>
+<a title="Privacy policy" href=/privacy>Privacy</a>
+<a title=About href=/about/>About</a></nav><div><span>© 2007 - 2023 Jan Bodnar</span>
+<span>admin(at)zetcode.com</span></div></footer><div class="ezmob-footer ezoic-floating-bottom ezo_ad ezmob-footer-desktop" id=ezmobfooter><center><span id=ezoic-pub-ad-placeholder-100></span><span class=ezmob-footer-close-wrap id=ezmob-footer-close style=display:none><span class=ezmob-footer-close onclick={{if(.VignetteConfig.Enabled)}}__ez_vig_close_wrapper(__ez_close_anchor,{{.VignetteConfig.UrlAddition}}){{else}}__ez_close_anchor(){{end}} title=close></span><span class=ezoicwhat><img src="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2218%22%20height=%2218%22%3E%3C/svg%3E" title=ezoic class="ezlazyload ezmob-anchor-img" ezimgfmt="rs rscb1 src ng ngcb1" data-ezsrc=https://zetcode.com/ezoimgfmt/go.ezodn.com/utilcave_com/ezoic.png></span></span></center></div><script>__ez.queue.addFile('/tardisrocinante/css_onload.js','/tardisrocinante/css_onload.js?gcb=0&cb=1',false,[],true,false,true,false);</script><script>var __inScopeForCCPA=false;function __uspapi(command,version,callback){var response=null;var successs=false;if(command==="getUSPData"&&version===1){var uspString="1";if(__inScopeForCCPA){uspString+="Y";var result;var consentCookie=(result=new RegExp('(?:^|; )ezoccpaconsent=([^;]*)').exec(document.cookie))?(result[1]):null;if(consentCookie==="nonconsent"){uspString+="Y";}
+else{uspString+="N";}
+uspString+="N"}
+else{uspString+="---";}
+response={uspString:uspString,version:1};success=true;}
+return callback(response,success);};function __receiveUspapiMessage(event){if(event.data.hasOwnProperty('__uspapiCall')){__uspapi('getUSPData',1,function(uspData,success){event.source.postMessage({__uspapiReturn:{returnValue:uspData,success:success,callId:event.data.__uspapiCall.callId}},event.origin);});}
+return null;};window.addEventListener("message",__receiveUspapiMessage,false);</script><script data-cfasync=false>!function(){var e=function(e,t){for(var r=0;r<t.length;r++){var n=t[r];if(0==n.complete||void 0!==n.readyState&&n.readyState<4){var o=n.getAttribute("src")||n.currentSrc;void 0!==n.readyState&&0==n.readyState?n.addEventListener("loadstart",(function(e){var t=e.currentTarget.getAttribute("src")||e.currentSrc;window.ezorqs(e,t)})):(o=n.getAttribute("src")||n.currentSrc,window.ezorqs(n,o)),n.addEventListener("load",(function(e){var t=e.currentTarget.getAttribute("src")||e.srcElement.currentSrc;window.ezorqe(e,t)})),n.addEventListener("loadeddata",(function(e){var t=e.currentTarget.getAttribute("src")||e.srcElement.currentSrc;window.ezorqe(e,t)})),n.addEventListener("error",(function(e){var t=e.currentTarget.getAttribute("src")||e.srcElement.currentSrc;window.ezorqe(e,t)}))}}};function t(e){for(var t=0;t<document.styleSheets.length;t++)if(document.styleSheets[t].href==e)return!0;return!1}__ez_addAllListeners=function(){e(0,document.querySelectorAll("img")),e(0,document.querySelectorAll("video")),e(0,document.querySelectorAll("audio")),function(e){for(var r=0;r<e.length;r++){var n=e[r];if(("preload"==n.getAttribute("rel")||"stylesheet"==n.getAttribute("rel"))&&null!=n.getAttribute("href")&&t(n.getAttribute("href"))){window.ezorqs(n,n.getAttribute("href"));var o=document.createElement("img");o.onerror=function(e){void 0!==e.path&&void 0!==e.path[0].currentSrc?window.ezorqe(n,e.path[0].currentSrc):void 0!==e.srcElement&&void 0!==e.srcElement.href&&window.ezorqe(n,e.srcElement.href)},o.src=n.getAttribute("href")}}}(document.querySelectorAll("link")),void 0!==window.__ez.ssaf&&window.__ez.ssaf.indexOf(16)>-1&&void 0!==window.__ez.sshsdef&&!1===window.__ez.sshsdef&&Element.prototype.addEventListener&&("function"==typeof window.onload&&(window.addEventListener("load",window.onload),window.onload=null),"function"==typeof document.onload&&(document.addEventListener.addEventListener("load",document.onload),document.onload=null))},__ez.queue.addFunc("__ez_addAllListeners","__ez_addAllListeners",null,!1,["/detroitchicago/tulsa.js"],!0,!0,!0,!0)}();</script><script>__ez.queue.addFile('/tardisrocinante/vitals.js','/tardisrocinante/vitals.js?gcb=0&cb=3',false,['/parsonsmaize/mulvane.js'],true,false,true,false);</script><script>var _audins_dom="zetcode_com",_audins_did=407103;__ez.queue.addDelayFunc("audins.js","__ez.script.add","//go.ezodn.com/detroitchicago/audins.js?cb=195-0");</script><noscript><div style=display:none><img src="//pixel.quantserve.com/pixel/p-31iz6hfFutd16.gif?labels=Domain.zetcode_com,DomainId.407103" border=0 height=1 width=1 alt=Quantcast></div></noscript><script>__ez.queue.addFile('/beardeddragon/drake.js','/beardeddragon/drake.js?gcb=0&cb=4',false,[],true,false,true,false);</script><script style=display:none>var __ez_dims=(function(){var setCookie=function(name,content,expiry){return document.cookie=name+'='+content+((expiry)?';expires='+(new Date(Math.floor(new Date().getTime()+expiry*1000)).toUTCString()):'')+';path=/';};var ffid=1;var oh=window.screen.height;var ow=window.screen.width;var h=ffid===1?oh:(oh>ow)?oh:ow;var w=ffid===1?ow:(oh>ow)?ow:oh;var uh=window.innerHeight||document.documentElement.clientHeight||document.getElementsByTagName('body')[0].clientHeight;var uw=window.innerWidth||document.documentElement.clientWidth||document.getElementsByTagName('body')[0].clientWidth;setCookie('ezds',encodeURIComponent('ffid='+ffid+',w='+w+',h='+h),(31536e3*7));setCookie('ezohw',encodeURIComponent('w='+uw+',h='+uh),(31536e3*7));})();</script><script style=display:none async>__ez.queue.addFile('/parsonsmaize/chanute.js','/parsonsmaize/chanute.js?a=a&cb=4&dcb=195-0&shcb=34',true,['/parsonsmaize/mulvane.js'],true,false,false,false);</script><script style=display:none async>__ez.queue.addFile('/porpoiseant/jellyfish.js','/porpoiseant/jellyfish.js?a=a&cb=10&dcb=195-0&shcb=34',false,[],true,false,false,false);</script></body></html>

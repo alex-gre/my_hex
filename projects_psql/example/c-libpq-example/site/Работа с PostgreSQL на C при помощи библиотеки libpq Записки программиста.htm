@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru-RU">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>Работа с PostgreSQL на C при помощи библиотеки libpq | Записки программиста</title>
+
+<link rel="shortcut icon" href="https://eax.me/favicon.ico" type="image/x-icon" />
+<meta name="google-site-verification" content="mI_RLXJwm4YMPzdIMR6z3SZiGCHnxxQCZPKAYBimygM" />
+<meta name='yandex-verification' content='5944100ee6c98f3d' />
+  <meta name="description" content="Нет причин не продолжить наше с вами изучение библиотек для языка C. Ранее в этом блоге рассматривались библиотеки libcurl, libpcap, а также некоторые сильно ме" />
+
+<link rel="stylesheet" href="https://eax.me/wp-content/themes/eaxme/style.css?20220818" type="text/css" media="screen" />
+
+<link rel="alternate" type="application/rss+xml" title="Записки программиста - RSS Feed" href="https://eax.me/feed/" />
+
+<link rel="stylesheet" href="https://eax.me/wp-content/plugins/codecolorer/codecolorer.css" type="text/css" media="screen" />
+<link rel='canonical' href='https://eax.me/libpq/' />
+</head>
+<body>
+
+<script type="text/javascript"><!--
+new Image().src = "https://coun"+"ter.yad"+"ro.ru/hit?r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";"+Math.random();//--></script>
+
+<div id="page">
+
+<!-- header begin -->
+
+<div id="header">
+    <div id="header_title">
+        <h1><a href="https://eax.me/">Записки программиста</a></h1>
+    </div>
+    <div id="header_desc">
+      <strong>Блог о программировании, а также электронике, радио, и всяком таком</strong>
+    </div>
+    <div class="clear"></div>
+</div>
+
+<!-- header end -->
+
+<div id="body">
+<div id="body_top">
+	<div id="body_left">
+    	<div id="body_left_content">
+
+
+	<div id="content" class="narrowcolumn">
+
+			
+			<div class="post" id="post-48792">
+                <div class="post-top">
+                    <div class="post-title">
+                        <div class="left">
+                          <h2>Работа с PostgreSQL на C при помощи библиотеки libpq</h2>
+                          <div style="float: left;">
+                          <p>16 января 2017</p>
+                          </div>
+                          <div style="float: right;"></div>
+                          <div style="clear: both;"></div>
+                        </div>
+                    </div>
+                </div>
+				<div class="entry">
+					<p>Нет причин не продолжить наше с вами изучение библиотек для языка C. Ранее в этом блоге рассматривались библиотеки <a href="/libcurl/">libcurl</a>, <a href="/libpcap/">libpcap</a>, а также <a href="/c-lists-rbtree/">некоторые сильно менее распространенные</a>. Сегодня же мы узнаем, как программы на C могут работать с реляционными базами данных. <span id="more-48792"></span></p>
+<p>Перейдем сразу к коду:</p>
+<div class="codecolorer-container c default" style="overflow:auto;white-space:nowrap;"><div class="c codecolorer"><span class="co2">#include &lt;stdio.h&gt;</span><br />
+<span class="co2">#include &lt;stdlib.h&gt;</span><br />
+<span class="co2">#include &lt;libpq-fe.h&gt;</span><br />
+<br />
+<span class="co1">// (c) Aleksander Alekseev 2016 | http://eax.me/</span><br />
+<br />
+<span class="co2">#define UNUSED(x) (void)(x)</span><br />
+<br />
+<span class="kw4">static</span> <span class="kw4">const</span> <span class="kw4">char</span><span class="sy0">*</span> user_phone_arr<span class="br0">&#91;</span><span class="br0">&#93;</span><span class="br0">&#91;</span><span class="nu0">2</span><span class="br0">&#93;</span> <span class="sy0">=</span> <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; <span class="br0">&#123;</span> <span class="st0">&quot;user111&quot;</span><span class="sy0">,</span> <span class="st0">&quot;phone111&quot;</span> <span class="br0">&#125;</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; <span class="br0">&#123;</span> <span class="st0">&quot;user222&quot;</span><span class="sy0">,</span> <span class="st0">&quot;phone222&quot;</span> <span class="br0">&#125;</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; <span class="br0">&#123;</span> <span class="st0">&quot;user333&quot;</span><span class="sy0">,</span> <span class="st0">&quot;phone333&quot;</span> <span class="br0">&#125;</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; <span class="br0">&#123;</span> NULL<span class="sy0">,</span> NULL <span class="br0">&#125;</span><br />
+<span class="br0">&#125;</span><span class="sy0">;</span><br />
+<br />
+<span class="kw4">static</span> PGconn<span class="sy0">*</span> conn <span class="sy0">=</span> NULL<span class="sy0">;</span><br />
+<span class="kw4">static</span> PGresult<span class="sy0">*</span> res <span class="sy0">=</span> NULL<span class="sy0">;</span><br />
+<br />
+<span class="kw4">static</span> <span class="kw4">void</span><br />
+terminate<span class="br0">&#40;</span><span class="kw4">int</span> code<span class="br0">&#41;</span><br />
+<span class="br0">&#123;</span><br />
+&nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>code <span class="sy0">!=</span> <span class="nu0">0</span><span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw3">fprintf</span><span class="br0">&#40;</span>stderr<span class="sy0">,</span> <span class="st0">&quot;%s<span class="es1">\n</span>&quot;</span><span class="sy0">,</span> PQerrorMessage<span class="br0">&#40;</span>conn<span class="br0">&#41;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>res <span class="sy0">!=</span> NULL<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; PQclear<span class="br0">&#40;</span>res<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>conn <span class="sy0">!=</span> NULL<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; PQfinish<span class="br0">&#40;</span>conn<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw3">exit</span><span class="br0">&#40;</span>code<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<span class="br0">&#125;</span><br />
+<br />
+<span class="kw4">static</span> <span class="kw4">void</span><br />
+clearRes<span class="br0">&#40;</span><span class="br0">&#41;</span><br />
+<span class="br0">&#123;</span><br />
+&nbsp; &nbsp; PQclear<span class="br0">&#40;</span>res<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; res <span class="sy0">=</span> NULL<span class="sy0">;</span><br />
+<span class="br0">&#125;</span><br />
+<br />
+<span class="kw4">static</span> <span class="kw4">void</span><br />
+processNotice<span class="br0">&#40;</span><span class="kw4">void</span> <span class="sy0">*</span>arg<span class="sy0">,</span> <span class="kw4">const</span> <span class="kw4">char</span> <span class="sy0">*</span>message<span class="br0">&#41;</span><br />
+<span class="br0">&#123;</span><br />
+&nbsp; &nbsp; UNUSED<span class="br0">&#40;</span>arg<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; UNUSED<span class="br0">&#40;</span>message<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="co1">// do nothing</span><br />
+<span class="br0">&#125;</span><br />
+<br />
+<span class="kw4">int</span><br />
+main<span class="br0">&#40;</span><span class="br0">&#41;</span><br />
+<span class="br0">&#123;</span><br />
+&nbsp; &nbsp; <span class="kw4">int</span> libpq_ver <span class="sy0">=</span> PQlibVersion<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;Version of libpq: %d<span class="es1">\n</span>&quot;</span><span class="sy0">,</span> libpq_ver<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; conn <span class="sy0">=</span> PQconnectdb<span class="br0">&#40;</span><span class="st0">&quot;user=eax password= host=127.0.0.1 dbname=eax&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>PQstatus<span class="br0">&#40;</span>conn<span class="br0">&#41;</span> <span class="sy0">!=</span> CONNECTION_OK<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; terminate<span class="br0">&#40;</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="co1">// Don't output notices like:</span><br />
+&nbsp; &nbsp; <span class="co1">// NOTICE: &nbsp;relation &quot;phonebook&quot; already exists, skipping</span><br />
+&nbsp; &nbsp; <span class="co1">// see http://stackoverflow.com/a/12504406/1565238</span><br />
+&nbsp; &nbsp; PQsetNoticeProcessor<span class="br0">&#40;</span>conn<span class="sy0">,</span> processNotice<span class="sy0">,</span> NULL<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw4">int</span> server_ver <span class="sy0">=</span> PQserverVersion<span class="br0">&#40;</span>conn<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw4">char</span> <span class="sy0">*</span>user <span class="sy0">=</span> PQuser<span class="br0">&#40;</span>conn<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw4">char</span> <span class="sy0">*</span>db_name <span class="sy0">=</span> PQdb<span class="br0">&#40;</span>conn<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;Server version: %d<span class="es1">\n</span>&quot;</span><span class="sy0">,</span> server_ver<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;User: %s<span class="es1">\n</span>&quot;</span><span class="sy0">,</span> user<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;Database name: %s<span class="es1">\n</span>&quot;</span><span class="sy0">,</span> db_name<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="co1">// same for insert, update, delete, begin, commit ...</span><br />
+&nbsp; &nbsp; res <span class="sy0">=</span> PQexec<span class="br0">&#40;</span>conn<span class="sy0">,</span> <span class="st0">&quot;CREATE TABLE IF NOT EXISTS phonebook &quot;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">&quot;(id SERIAL PRIMARY KEY, name VARCHAR(64), &quot;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">&quot;phone VARCHAR(64), last_changed TIMESTAMP)&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>PQresultStatus<span class="br0">&#40;</span>res<span class="br0">&#41;</span> <span class="sy0">!=</span> PGRES_COMMAND_OK<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; terminate<span class="br0">&#40;</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; clearRes<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; res <span class="sy0">=</span> PQexec<span class="br0">&#40;</span>conn<span class="sy0">,</span> <span class="st0">&quot;DELETE FROM phonebook&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>PQresultStatus<span class="br0">&#40;</span>res<span class="br0">&#41;</span> <span class="sy0">!=</span> PGRES_COMMAND_OK<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; terminate<span class="br0">&#40;</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; clearRes<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw4">const</span> <span class="kw4">char</span><span class="sy0">*</span> query <span class="sy0">=</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">&quot;INSERT INTO phonebook (name, phone, last_changed) &quot;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">&quot; VALUES ($1, $2, now());&quot;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw4">const</span> <span class="kw4">char</span><span class="sy0">*</span> params<span class="br0">&#91;</span><span class="nu0">2</span><span class="br0">&#93;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw1">for</span><span class="br0">&#40;</span><span class="kw4">int</span> i <span class="sy0">=</span> <span class="nu0">0</span><span class="sy0">;</span> <span class="sy0">;</span> i<span class="sy0">++</span><span class="br0">&#41;</span><br />
+&nbsp; &nbsp; <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw4">const</span> <span class="kw4">char</span><span class="sy0">*</span> user <span class="sy0">=</span> user_phone_arr<span class="br0">&#91;</span>i<span class="br0">&#93;</span><span class="br0">&#91;</span><span class="nu0">0</span><span class="br0">&#93;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw4">const</span> <span class="kw4">char</span><span class="sy0">*</span> phone <span class="sy0">=</span> user_phone_arr<span class="br0">&#91;</span>i<span class="br0">&#93;</span><span class="br0">&#91;</span><span class="nu0">1</span><span class="br0">&#93;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>user <span class="sy0">==</span> NULL <span class="sy0">||</span> phone <span class="sy0">==</span> NULL<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">break</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; &nbsp; &nbsp; params<span class="br0">&#91;</span><span class="nu0">0</span><span class="br0">&#93;</span> <span class="sy0">=</span> user<span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; params<span class="br0">&#91;</span><span class="nu0">1</span><span class="br0">&#93;</span> <span class="sy0">=</span> phone<span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; &nbsp; &nbsp; res <span class="sy0">=</span> PQexecParams<span class="br0">&#40;</span>conn<span class="sy0">,</span> query<span class="sy0">,</span> <span class="nu0">2</span><span class="sy0">,</span> NULL<span class="sy0">,</span> params<span class="sy0">,</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;NULL<span class="sy0">,</span> NULL<span class="sy0">,</span> <span class="nu0">0</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>PQresultStatus<span class="br0">&#40;</span>res<span class="br0">&#41;</span> <span class="sy0">!=</span> PGRES_COMMAND_OK<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; terminate<span class="br0">&#40;</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; clearRes<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="br0">&#125;</span><br />
+<br />
+&nbsp; &nbsp; res <span class="sy0">=</span> PQexec<span class="br0">&#40;</span>conn<span class="sy0">,</span> <span class="st0">&quot;SELECT id, name, phone, last_changed &quot;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="st0">&quot;FROM phonebook&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw1">if</span><span class="br0">&#40;</span>PQresultStatus<span class="br0">&#40;</span>res<span class="br0">&#41;</span> <span class="sy0">!=</span> PGRES_TUPLES_OK<span class="br0">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; terminate<span class="br0">&#40;</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw4">int</span> ncols <span class="sy0">=</span> PQnfields<span class="br0">&#40;</span>res<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;There are %d columns:&quot;</span><span class="sy0">,</span> ncols<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw1">for</span><span class="br0">&#40;</span><span class="kw4">int</span> i <span class="sy0">=</span> <span class="nu0">0</span><span class="sy0">;</span> i <span class="sy0">&lt;</span> ncols<span class="sy0">;</span> i<span class="sy0">++</span><span class="br0">&#41;</span><br />
+&nbsp; &nbsp; <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw4">char</span> <span class="sy0">*</span>name <span class="sy0">=</span> PQfname<span class="br0">&#40;</span>res<span class="sy0">,</span> i<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot; %s&quot;</span><span class="sy0">,</span> name<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="br0">&#125;</span><br />
+&nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;<span class="es1">\n</span>&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw4">int</span> nrows <span class="sy0">=</span> PQntuples<span class="br0">&#40;</span>res<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw1">for</span><span class="br0">&#40;</span><span class="kw4">int</span> i <span class="sy0">=</span> <span class="nu0">0</span><span class="sy0">;</span> i <span class="sy0">&lt;</span> nrows<span class="sy0">;</span> i<span class="sy0">++</span><span class="br0">&#41;</span><br />
+&nbsp; &nbsp; <span class="br0">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw4">char</span><span class="sy0">*</span> id <span class="sy0">=</span> PQgetvalue<span class="br0">&#40;</span>res<span class="sy0">,</span> i<span class="sy0">,</span> <span class="nu0">0</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw4">char</span><span class="sy0">*</span> name <span class="sy0">=</span> PQgetvalue<span class="br0">&#40;</span>res<span class="sy0">,</span> i<span class="sy0">,</span> <span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw4">char</span><span class="sy0">*</span> phone <span class="sy0">=</span> PQgetvalue<span class="br0">&#40;</span>res<span class="sy0">,</span> i<span class="sy0">,</span> <span class="nu0">2</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw4">char</span><span class="sy0">*</span> last_changed <span class="sy0">=</span> PQgetvalue<span class="br0">&#40;</span>res<span class="sy0">,</span> i<span class="sy0">,</span> <span class="nu0">3</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;Id: %s, Name: %s, Phone: %s, Last changed: %s<span class="es1">\n</span>&quot;</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; id<span class="sy0">,</span> name<span class="sy0">,</span> phone<span class="sy0">,</span> last_changed<span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="br0">&#125;</span><br />
+<br />
+&nbsp; &nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;Total: %d rows<span class="es1">\n</span>&quot;</span><span class="sy0">,</span> nrows<span class="br0">&#41;</span><span class="sy0">;</span><br />
+<br />
+&nbsp; &nbsp; clearRes<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; terminate<span class="br0">&#40;</span><span class="nu0">0</span><span class="br0">&#41;</span><span class="sy0">;</span><br />
+&nbsp; &nbsp; <span class="kw1">return</span> <span class="nu0">0</span><span class="sy0">;</span><br />
+<span class="br0">&#125;</span></div></div>
+<p>Как видите, тут приводится пример создания и удаления таблиц, запись в базу и чтение из нее &#8212; практически все, что вам когда-либо может понадобится. Мне кажется, что код достаточно прост, чтобы я мог его не разжевывать. Все подробности в случае необходимости вы найдете в <a href="https://www.postgresql.org/docs/current/static/libpq.html">официальной документации</a>.</p>
+<p>GitHub-репозиторий с приведенным выше кодом находится <a href="https://github.com/afiskon/c-libpq-example">здесь</a>. Как обычно, если что-то не понятно, или вам есть, что добавить к написанному, не бойтесь использовать комментарии.</p>
+<!-- tags begin -->
+
+          <p style="padding-bottom: 0px;"><em>Метки: <a href="https://eax.me/tag/c-cpp/" rel="tag">C/C++</a>, <a href="https://eax.me/tag/postgresql/" rel="tag">PostgreSQL</a>, <a href="https://eax.me/tag/dbms/" rel="tag">СУБД</a>.</em></p> 
+
+
+<!-- tags end -->
+
+<!-- subscribe begin -->
+
+
+<div id="comments">
+
+<p style="color: #ff5900; text-align: center;"><br />Вы можете прислать свой комментарий мне на почту, или воспользоваться комментариями в <a href="https://eax.me/telegram/" style="color: #ff5900;" >Telegram-группе</a>.</p>
+
+</div>
+
+<!-- subscribe end -->
+
+				</div>
+			</div>
+
+<!-- comments begin -->
+	
+<!-- comments end -->
+
+	
+	</div>
+
+            
+        </div>
+    </div>
+
+<!-- sidebar begin -->
+    <div id="body_right">
+    	<div id="body_right_content">
+            <div id="sidebars">
+                	<div id="sidebar" class="sidebars">
+		<ul>
+		<li id="text-10" class="widget widget_text"><h2 class="widgettitle">Коротко о себе</h2>			<div class="textwidget"><div style="margin-bottom: 6px;"><span class="about">Меня зовут Александр, позывной любительского радио R2AUK. Здесь я&nbsp;пишу об интересующих меня вещах и&nbsp;временами — просто о жизни.</span></div>
+
+<div style="margin-bottom: 6px;"><span class="about">Вы можете следить за обновлениями блога с помощью <a href="/feed/">RSS</a>, <a href="/vkontakte/">ВКонтакте</a>, <a href="/telegram/">Telegram</a> или <a href="/twitter/">Twitter</a>. Также я являюсь одним из ведущих <a href="/devzen/">подкаста DevZen</a> и иногда выкладываю видео на <a href="/youtube/">YouTube</a>.</span></div>
+
+<div style="margin-bottom: 6px;"><span class="about">Мой e-mail —<em>&nbsp;af<span>i&#115;</span>&#107;on<em></em>&#64;gm&#97;il<em>.</em>c&#111;m</em>. Если&nbsp;вы хотите мне написать, прошу предварительно ознакомиться с <a href="/faq/">этим FAQ</a>.</span></div></div>
+		</li><li id="search-3" class="widget widget_search"><form method="get" id="searchform" action="https://encrypted.google.com/search">
+<div>
+<input type="hidden" name="as_sitesearch" value="eax.me" />
+<input type="text" id="s" name="as_q" value="" />
+<input type="submit" id="searchsubmit" value="&nbsp;Поиск&nbsp;" />
+</div>
+</form>
+</li><li id="text-15" class="widget widget_text"><h2 class="widgettitle">Основные рубрики</h2>			<div class="textwidget"><ul>
+<li><a href="https://eax.me/tag/antenny/">Антенны</a></li>
+<li><a href="https://eax.me/tag/wireless/">Беспроводная связь</a></li>
+<li><a href="https://eax.me/tag/c-cpp/">C/C++</a></li>
+<li><a href="https://eax.me/tag/golang/">Go</a></li>
+<li><a href="https://eax.me/tag/linux/">Linux</a></li>
+<li><a href="https://eax.me/tag/postgresql/">PostgreSQL</a></li>
+<li><a href="https://eax.me/tag/python/">Python</li></li>
+<li><a href="https://eax.me/tag/stm32/">STM32</a></li>
+<li><a href="https://eax.me/tag/dbms/">СУБД</a></li>
+<li><a href="https://eax.me/tag/elektronika/">Электроника</a></li>
+</ul></div>
+		</li>                </ul>
+<div class="clear"></div>
+			</div>
+            </div>
+            
+        </div>
+        <div id="body_right_content_end"></div>
+    </div>
+    <div id="body_right_end"></div>
+<!-- sidebar end -->
+
+</div>
+</div>
+
+<!-- footer begin -->
+
+<div id="footer">
+</div>
+	<div id="footer_text">
+
+        <div style="float: left;">
+<p style="font-family: arial; line-height: 1.1; color: #ddd;">Копирование материалов данного сайта не возбраняется при условии <br /> указания ссылки на первоисточник.  &copy; 2009&ndash;2023 Записки программиста</p>
+        </div>
+        <div style="float: right;">
+
+
+<script type="text/javascript"><!--
+document.write(
+'<a href="htt'+'ps://www.livein'+'ternet.ru/st'+'at/eax.me/index.html" '+
+'target="_blank"><img src="/files/counter.gif" '+
+'title="Statistics" '+
+'alt="" height="31" width="88" border="0" /></a>' +
+'');
+//--></script>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+
+<!-- footer end -->
+</div>
+
+
+</body>
+</html>
+<!-- Dynamic page generated in 0.199 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2023-09-23 14:01:21 -->
+
+<!-- super cache -->

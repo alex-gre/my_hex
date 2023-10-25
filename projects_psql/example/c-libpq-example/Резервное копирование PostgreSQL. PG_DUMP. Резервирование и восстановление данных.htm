@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html itemscope itemtype='http://schema.org/Article' lang="ru">
+<head>
+	<title>Резервное копирование PostgreSQL. PG_DUMP. Резервирование и восстановление данных</title>
+	<meta charset="utf-8">
+	<meta name="verify-admitad" content="5c4577cf73">
+	<meta name="verify-v1" content="2UWIXew60ZXDE7r/7ijqzDr5nnZ4gej3KogFQtJC5hA=">
+    <meta name='yandex-verification' content='6b00094cd229c1ad'>
+	<meta name='viewport' content='initial-scale=1, width=device-width'>
+	
+	<meta property="og:type" content="article">
+	<meta property="og:image" content="https://www.dmosk.ru/img/obo_mne1.jpg">
+    <meta property="og:image:url" content="https://www.dmosk.ru/img/obo_mne1.jpg">
+    <meta property="og:image:secure_url" content="https://www.dmosk.ru/img/obo_mne1.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="660">
+	<meta property="og:image:height" content="945">
+	<meta property='og:url' content='https://www.dmosk.ru/miniinstruktions.php?mini=postgresql-dump'>
+	<meta property="og:locale" content="ru_RU">
+	<meta property="og:title" content="Резервное копирование PostgreSQL. PG_DUMP. Резервирование и восстановление данных">
+	<meta property="og:description" content="">
+	<meta property="fb:app_id" content="322213771610681">
+	
+    	
+    <meta name='keywords' CONTENT='PostgreSQL dump backup резервное копирование'>
+    <meta name='description' CONTENT='Шпаргалка по работе с резервными копиями PostgreSQL. Как создать дамп с разными опциями. Как восстановить базу из файла с дампом.'>            
+    
+    <link rel="canonical" href="https://www.dmosk.ru/miniinstruktions.php?mini=postgresql-dump">	
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+	<link rel="icon" type="image/gif" href="/favicon.gif">
+    <link rel='stylesheet' type='text/css' href='/style.css'>
+	<link itemprop='mainEntityOfPage' href='/miniinstruktions.php?mini=postgresql-dump'></head>
+<body>
+	<nav>
+		<div class="main-menu">
+		<a href='/' class='menu'>Обо&nbsp;мне</a><a href='/uslugi.php' class='menu'>Услуги</a><a href='/server.php' class='menu'>Настройка&nbsp;серверов</a><a href='/kontakti.php' class='menu'>Контакты</a><a rel="nofollow" href='/donate.php' class='menu'>Донаты</a><a href='/polezno.php' class='menu'>Помощь&nbsp;online</a>		</div>
+		<div class='menu-mini'><div></div><div></div><div></div></div>
+		<div class='menu-search-box'>
+			<a href='#search' class='menu menu-search' title='Поиск по сайту' rel='nofollow'>
+				<img src='/img/other/search.png' alt='Поиск по сайту' title='Поиск по сайту'>
+				<span class='hidden'>&#215;</span>
+			</a>
+		</div>
+		<div class='menu-cecutient'>
+			<a href='#' class='menu menu-cecutient' title='Версия для слабовидящих' rel='nofollow'>
+				<img src='/img/other/eye.png' alt='Версия для слабовидящих' title='Версия для слабовидящих'>
+			</a>
+		</div>
+		<div class="menu-contact" itemscope itemtype="https://schema.org/Organization" itemprop='publisher'>
+			<div itemprop="logo image" itemscope itemtype="https://schema.org/ImageObject">
+				<link itemprop="url contentUrl" href="/img/logo_full.png">
+			</div>
+			<link itemprop="url" href="https://www.dmosk.ru">
+			<span>&copy; <span itemprop="name" content="Дмитрий Моск">Дмитрий Моск</span><a href='tel:+79062504869' rel='nofollow' itemprop="telephone" content="+7(906)250-48-69"> &nbsp;+7(906)250-48-69</a></span>
+		</div>
+		<div class="menu-up"><a href='#up' onclick="moveUp(); return false;" rel='nofollow'>Наверх</a></div>
+	</nav>
+	
+		<div class="main-body">
+<div class="article-text">
+
+<div id='articleBody' itemprop='articleBody'>
+		<div itemscope itemtype='http://schema.org/ImageObject' itemprop='image'>
+			<link itemprop='url contentUrl' href='https://www.dmosk.ru/img/schema.org/miniinstruktions/tmico_postgresql-dump.png'>
+			<meta itemprop='width' content='300'>
+			<meta itemprop='height' content='225'>
+		</div>
+		<h1 itemprop='headline name'>Резервное копирование&nbsp;PostgreSQL</h1><div class='date-pub-upd'>
+			<span><img src='/img/public/time.jpg' alt='Обновлено' title='Дата обновления'> Обновлено: <time datetime='2022-05-30T16:19:37+03:00' itemprop='dateModified'>30.05.2022</time></span>
+			<span><img src='/img/public/time.jpg' alt='Опубликовано' title='Дата публикации'> Опубликовано: <time datetime='2017-09-25T14:01:35+03:00' itemprop='datePublished'>25.09.2017</time></span>
+		</div>
+
+<p>Тематические термины:&nbsp;<a href="/terminus.php?object=postgresql">PostgreSQL</a>, <a href="/terminus.php?object=sql">SQL</a></p>
+
+<p>В данной инструкции рассмотрены варианты и примеры создания&nbsp;резервных копий и восстановления баз СУБД PostgreSQL.</p>
+
+<div class="content-list">
+<p><strong><a href="#backup">Создание копий</a></strong><br />
+&nbsp; &nbsp;&nbsp;<a href="#base">Базовая команда</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#auth">Пользователь и пароль</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#zip">Сжатие данных</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#script">Скрипт</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#romote">На удаленном сервере</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#table">Дамп определенной таблицы</a><br />
+&nbsp; &nbsp; <a href="#folder">Каждая таблица в свой файл</a><br />
+&nbsp; &nbsp; <a href="#someschema">Для определенной схемы</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#schema">Только схемы</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#data">Только данные</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#dump-pgadmin">pgAdmin</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#not-text">Не текстовые&nbsp;форматы</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#pg-basebackup">pg_basebackup</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#pg-dumpall">pg_dumpall&nbsp;(все базы данных)</a><br />
+<strong><a href="#restore">Восстановление</a></strong><br />
+&nbsp; &nbsp;&nbsp;<a href="#restore-base">Базовая команда</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#restore-auth">С авторизацией</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#restore-zip">Из файла gz</a><br />
+&nbsp; &nbsp; <a href="#restore-database">Определенную базу</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#restore-table">Определенную таблицу</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#restore-pgadmin">С помощью pgAdmin</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#pg-restore">pg_restore&nbsp;(бинарные бэкапы)</a><br />
+<strong><a href="#csv">Работа с CSV</a></strong><br />
+<strong><a href="#errors">Возможные проблемы</a></strong><br />
+&nbsp; &nbsp;&nbsp;<a href="#Input">Input file appears to be a text format dump. please use psql</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#No-matching">No matching tables were found</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#Too-many">Too many command-line arguments</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#Aborting">Aborting because of server version mismatch</a><br />
+&nbsp;&nbsp; &nbsp;<a href="#No-password">No password supplied</a><br />
+&nbsp; &nbsp; <a href="#wrong-command">Неверная команда \</a></p>
+</div>
+
+<p>Все команды, которые приводятся ниже, должны выполняться из командной строки. В Linux &mdash; это окно&nbsp;терминала, в Windows &mdash; командная строка (cmd.exe) с переходом в папку установки&nbsp;PostgreSQL.</p>
+
+<h2 id="backup">Создание резервных копий</h2>
+
+<h3 id="base">Базовая команда</h3>
+
+<p>Синтаксис:</p>
+
+<div class="console">
+<p>pg_dump &lt;параметры&gt; &lt;имя базы&gt; &gt; &lt;файл, куда сохранить дамп&gt;</p>
+</div>
+
+<p>Пример:</p>
+
+<div class="console">
+<p>pg_dump users &gt; /tmp/users.dump</p>
+</div>
+
+<h3 id="auth">Пользователь и пароль</h3>
+
+<p>Если резервная копия выполняется не от учетной записи postgres, необходимо добавить опцию <strong>-U</strong> с указанием пользователя:</p>
+
+<div class="console">
+<p>pg_dump&nbsp;-U dmosk&nbsp;-W users &gt; /tmp/users.dump</p>
+</div>
+
+<p><em>* где&nbsp;<strong>dmosk</strong> &mdash; имя учетной записи; опция&nbsp;<strong>W</strong> потребует ввода пароля.</em></p>
+
+<h3 id="zip">Сжатие данных</h3>
+
+<p>Для экономии дискового пространства или более быстрой передачи по сети можно сжать наш архив:</p>
+
+<div class="console">
+<p>pg_dump users | gzip &gt; users.dump.gz</p>
+</div>
+
+<h3 id="script">Скрипт для автоматического резервного копирования</h3>
+
+<p>Рассмотрим 2 варианта написания скрипта для резервирования баз PostgreSQL. Первый вариант &mdash; запуск скрипта от пользователя root для резервирования одной базы. Второй &mdash; запуск от пользователя postgres для резервирования всех баз, созданных в СУБД.</p>
+
+<p>Для начала, создадим каталог, в котором&nbsp;разместим скрипт, например:</p>
+
+<div class="console">
+<p>mkdir&nbsp;/scripts</p>
+</div>
+
+<p>И сам скрипт:&nbsp;</p>
+
+<div class="console">
+<p>vi&nbsp;/scripts/postgresql_dump.sh</p>
+</div>
+
+<p><strong>Вариант 1.</strong> Запуск от пользователя root; одна база.</p>
+
+<div class="editor">
+<p>#!/bin/sh<br />
+PATH=/etc:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin<br />
+<br />
+PGPASSWORD=password<br />
+export PGPASSWORD<br />
+pathB=/backup<br />
+dbUser=dbuser<br />
+database=db<br />
+<br />
+find $pathB \( -name &quot;*-1[^5].*&quot; -o -name &quot;*-[023]?.*&quot; \) -ctime +61 -delete<br />
+pg_dump -U $dbUser $database | gzip &gt; $pathB/pgsql_$(date &quot;+%Y-%m-%d&quot;).sql.gz<br />
+<br />
+unset PGPASSWORD</p>
+</div>
+
+<p><em>* где&nbsp;<strong>password</strong> &mdash; пароль для подключения к postgresql; <strong>/backup</strong> &mdash; каталог, в котором будут храниться резервные копии;&nbsp;<strong>dbuser</strong> &mdash; имя учетной записи для подключения к БУБД; <strong>pathB</strong> &mdash; путь до каталога, где будут храниться резервные копии.<br />
+* данный скрипт сначала удалит все резервные копии, старше 61 дня, но оставит от 15-о числа как длительный архив. После при помощи утилиты&nbsp;pg_dump будет выполнено подключение и резервирование базы db. Пароль экспортируется в системную переменную на момент выполнения задачи.</em></p>
+
+<p>Для запуска резервного копирования по расписанию, сохраняем скрипт в файл, например, /scripts/postgresql_dump.sh и создаем задание в планировщике:</p>
+
+<div class="console">
+<p>crontab -e</p>
+</div>
+
+<div class="editor">
+<p>3 0 * * *&nbsp;/scripts/postgresql_dump.sh</p>
+</div>
+
+<p><em>* наш скрипт будет запускаться каждый день в 03:00.</em></p>
+
+<p><strong>Вариант 2.</strong>&nbsp;Запуск от пользователя postgres; все базы.</p>
+
+<div class="editor">
+<p>#!/bin/bash<br />
+PATH=/etc:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin<br />
+<br />
+pathB=/backup/postgres<br />
+<br />
+find $pathB \( -name &quot;*-1[^5].*&quot; -o -name &quot;*-[023]?.*&quot; \) -ctime +61 -delete<br />
+<br />
+for dbname in `echo &quot;SELECT datname FROM pg_database;&quot; | psql | tail -n +3 | head -n -2 | egrep -v &#39;template0|template1|postgres&#39;`; do<br />
+&nbsp; &nbsp; pg_dump $dbname | gzip &gt; $pathB/$dbname-$(date &quot;+%Y-%m-%d&quot;).sql.gz<br />
+done;</p>
+</div>
+
+<p><em>* где&nbsp;<strong>/backup</strong> &mdash; каталог, в котором будут храниться резервные копии;&nbsp;<strong>pathB</strong> &mdash; путь до каталога, где будут храниться резервные копии.<br />
+* данный скрипт сначала удалит все резервные копии, старше 61 дня, но оставит от 15-о числа как длительный архив. После найдет все созданные в СУБД базы, кроме служебных и&nbsp;при помощи утилиты&nbsp;pg_dump будет выполнено&nbsp;резервирование каждой найденной базы. Пароль нам не нужен, так как по умолчанию, пользователь postgres имеет возможность подключаться к базе без пароля.</em></p>
+
+<div class="note">
+<p>Необходимо убедиться, что у пользователя postgre будет разрешение на запись в каталог назначения, в нашем примере,&nbsp;<strong>/backup/postgres</strong>.</p>
+</div>
+
+<p>Зададим в качестве владельца файла, пользователя postgres:</p>
+
+<div class="console">
+<p>chown postgres:postgres&nbsp;/scripts/postgresql_dump.sh</p>
+</div>
+
+<p>Для запуска резервного копирования по расписанию, сохраняем скрипт в файл, например, /scripts/postgresql_dump.sh и создаем задание в планировщике:</p>
+
+<div class="console">
+<p>crontab -e -u&nbsp;postgres</p>
+</div>
+
+<p><em>* мы откроем на редактирование cron для пользователя&nbsp;<strong>postgres</strong>.</em></p>
+
+<div class="editor">
+<p>3 0 * * *&nbsp;/scripts/postgresql_dump.sh</p>
+</div>
+
+<p><em>* наш скрипт будет запускаться каждый день в 03:00.</em></p>
+
+<p><strong>Права и запуск</strong></p>
+
+<p>Разрешаем запуск скрипта, как исполняемого файла:</p>
+
+<div class="console">
+<p>chmod +x /scripts/postgresql_dump.sh</p>
+</div>
+
+<p>Единоразово можно запустить задание на выполнение резервной копии:</p>
+
+<div class="console">
+<p>/scripts/postgresql_dump.sh</p>
+</div>
+
+<p>... или от пользователя postgres:</p>
+
+<div class="console">
+<p>su - postgres -c &quot;/scripts/postgresql_dump.sh&quot;</p>
+</div>
+
+<h3 id="romote">На удаленном сервере</h3>
+
+<p>Если сервер баз данных находится на другом сервере, просто добавляем опцию -h:</p>
+
+<div class="console">
+<p>pg_dump -h 192.168.0.15 users &gt; /tmp/users.dump</p>
+</div>
+
+<p><em>* необходимо убедиться, что сама СУБД разрешает удаленное подключение. Подробнее читайте инструкцию&nbsp;<a href="/miniinstruktions.php?mini=pgsql-remote">Как настроить удаленное подключение к PostgreSQL</a>.</em></p>
+
+<h3 id="table">Дамп определенной таблицы</h3>
+
+<p>Запускается с опцией <strong>-t &lt;table&gt;</strong>&nbsp;или <strong>--table=&lt;table&gt;</strong>:</p>
+
+<div class="console">
+<p>pg_dump -t students&nbsp;users &gt; /tmp/students.dump</p>
+</div>
+
+<p><em>* где&nbsp;<strong>students</strong> &mdash; таблица;&nbsp;<strong>users</strong> &mdash; база данных.</em></p>
+
+<p>Если наша таблица находится в определенной схеме, то она указывается вместе с ней, например:</p>
+
+<div class="console">
+<p>pg_dump -t public.students&nbsp;users &gt; /tmp/students.dump</p>
+</div>
+
+<p><em>* где&nbsp;<strong>public&nbsp;&mdash;</strong> схема;&nbsp;<strong>students</strong> &mdash; таблица;&nbsp;<strong>users</strong> &mdash; база данных.</em></p>
+
+<h3 id="folder">Размещение каждой таблицы в отдельный файл</h3>
+
+<p>Также называется резервированием в каталог. Данный способ удобен при больших размерах базы или необходимости восстанавливать отдельные таблицы.&nbsp;Выполняется с ипользованием ключа -d:</p>
+
+<div class="console">
+<p>pg_dump -d&nbsp;customers&nbsp;&gt; /tmp/folder</p>
+</div>
+
+<p><em>* где&nbsp;<strong>/tmp/folder</strong> &mdash; путь до каталога, в котором разместяться файлы дампа для каждой таблицы.</em></p>
+
+<h3 id="someschema">Для определенной схемы</h3>
+
+<p>В нашей базе может быть несколько схем. Если мы хотим сделать дамп только для определенной схемы, то используем опцию -n, например:</p>
+
+<div class="console">
+<p>pg_dump -n public peoples&nbsp;&gt; /tmp/peoples.public.sql</p>
+</div>
+
+<p><em>* в данном примере мы заархивируем схему&nbsp;<strong>public</strong> базы данных&nbsp;<strong>peoples</strong>.</em></p>
+
+<h3 id="schema">Только схемы (структуры)</h3>
+
+<p>Для резервного копирования без данных (только таблицы и их структуры):</p>
+
+<div class="console">
+<p>pg_dump --schema-only&nbsp;users &gt; /tmp/users.schema.dump</p>
+</div>
+
+<p>Также, внутри каждой базы могут быть свои схемы с данными. Если нам нужно сделать дамп именно той схемы, которая внутри базы, используем ключ -n:</p>
+
+<div class="console">
+<p>pg_dump --schema-only&nbsp;users -n production&nbsp;&gt; /tmp/users.schema_production.dump</p>
+</div>
+
+<p>* в данном примере мы создадим дамп структуры базы данных&nbsp;users только для схемы&nbsp;production.</p>
+
+<p>Или полный дамп с данными для схемы внутри базы данных:</p>
+
+<div class="console">
+<p>pg_dump&nbsp;users -n production&nbsp;&gt; /tmp/users.production.dump</p>
+</div>
+
+<h3 id="data">Только данные</h3>
+
+<div class="console">
+<p>pg_dump --data-only&nbsp;users &gt; /tmp/users.data.dump</p>
+</div>
+
+<h3 id="dump-pgadmin">Использование pgAdmin</h3>
+
+<p>Данный метод хорошо подойдет для компьютеров с Windows и для быстрого создания резервных копий из графического интерфейса.</p>
+
+<p>Запускаем&nbsp;pgAdmin - подключаемся к серверу -&nbsp;кликаем правой кнопкой мыши по базе, для которой хотим сделать дамп - выбираем <strong>Резервная копия</strong>:</p>
+
+<p><img alt="Выбираем операцию резервного копирования для базы Postgresql" src="https://www.dmosk.ru/img/miniinstruktions/postgresql-dump-01.jpg" style="width: 328px; height: 306px;" title="Выбираем операцию резервного копирования для базы Postgresql" /></p>
+
+<p>В открывшемся окне выбираем путь для сохранения данных и настраиваемый формат:</p>
+
+<p><img alt="Настраиваем путь для резервного копирования" src="https://www.dmosk.ru/img/miniinstruktions/postgresql-dump-02.jpg" style="width: 425px; height: 104px;" title="Настраиваем путь для резервного копирования" /></p>
+
+<p>При желании, можно изучить дополнительные параметры для резервного копирования:</p>
+
+<p><img alt="Дополнительные опции" src="https://www.dmosk.ru/img/miniinstruktions/postgresql-dump-03.jpg" style="width: 424px; height: 66px;" title="Дополнительные опции" /></p>
+
+<p>После нажимаем <strong>Резервная копия</strong> - ждем окончания процесса и кликаем по <strong>Завершено</strong>.</p>
+
+<h3 id="not-text">Не текстовые&nbsp;форматы дампа</h3>
+
+<p>Другие форматы позволяют делать частичное восстановление, работать в несколько потоков и сжимать данные.</p>
+
+<p>Бинарный с компрессией:</p>
+
+<div class="console">
+<p>pg_dump -Fc users &gt; users.bak</p>
+</div>
+
+<p>Тарбол:</p>
+
+<div class="console">
+<p>pg_dump -Ft users &gt; users.tar</p>
+</div>
+
+<p>Directory-формат:</p>
+
+<div class="console">
+<p>pg_dump -Fd&nbsp;users &gt; users.dir</p>
+</div>
+
+<h3 id="pg-basebackup">Использование&nbsp;pg_basebackup</h3>
+
+<p>pg_basebackup позволяет создать резервную копию для кластера PostgreSQL.</p>
+
+<div class="console">
+<p>pg_basebackup -h node1 -D /backup</p>
+</div>
+
+<p><em>* в данном примере создается резервная копия для сервера&nbsp;<strong>node1</strong> с сохранением в каталог&nbsp;<strong>/backup</strong>.</em></p>
+
+<h3 id="pg-dumpall">pg_dumpall</h3>
+
+<p>Данная утилита делает выгрузку всех баз данных, в том числе системных. На выходе получаем файл для восстановления в формате скрипта.</p>
+
+<div class="console">
+<p>pg_dumpall &gt; cluster.bak</p>
+</div>
+
+<p>Утилиту удобно использовать с ключом -g (--globals-only) &mdash; выгрузка только глобальных&nbsp;объектов&nbsp;(ролей&nbsp;и табличных&nbsp;пространств).</p>
+
+<p>Для создание резервного копирования со сжатием:</p>
+
+<div class="console">
+<p>pg_dumpall&nbsp;| gzip &gt; cluster.tar.gz</p>
+</div>
+
+<h2 id="restore">Восстановление</h2>
+
+<p>Может понадобиться создать базу данных. Это можно сделать SQL-запросом:</p>
+
+<div class="console">
+<p>=# CREATE DATABASE users WITH ENCODING=&#39;UTF-8&#39;;</p>
+</div>
+
+<p><em>* где&nbsp;<strong>users</strong> &mdash; имя базы;&nbsp;<strong>UTF-8</strong> &mdash; используемая кодировка.</em></p>
+
+<p>Если мы получим ошибку:</p>
+
+<div class="console-like">
+<p>ERROR: &nbsp;encoding &quot;UTF8&quot; does not match locale &quot;en_US&quot;<br />
+DETAIL: &nbsp;The chosen LC_CTYPE setting requires encoding &quot;LATIN1&quot;.</p>
+</div>
+
+<p>Указываем больше параметров при создании базы:</p>
+
+<div class="console">
+<p>CREATE DATABASE users WITH OWNER &#39;postgres&#39; ENCODING &#39;UTF8&#39; LC_COLLATE = &#39;ru_RU.UTF-8&#39; LC_CTYPE = &#39;ru_RU.UTF-8&#39; TEMPLATE = template0;</p>
+</div>
+
+<h3 id="restore-base">Базовая команда</h3>
+
+<p>Синтаксис:</p>
+
+<div class="console">
+<p>psql&nbsp;&lt;имя базы&gt; &lt;&nbsp;&lt;файл с дампом&gt;</p>
+</div>
+
+<p>Пример:</p>
+
+<div class="console">
+<p>psql users&nbsp;&lt;&nbsp;/tmp/users.dump</p>
+</div>
+
+<h3 id="restore-auth">С авторизацией</h3>
+
+<p>При необходимости авторизоваться при подключении к базе вводим:</p>
+
+<div class="console">
+<p>psql -U dmosk -W&nbsp;users&nbsp;&lt;&nbsp;/tmp/users.dump</p>
+</div>
+
+<p><em>* где&nbsp;<strong>dmosk</strong>&nbsp;&mdash; имя учетной записи; опция&nbsp;<strong>W</strong>&nbsp;потребует ввода пароля.</em></p>
+
+<h3 id="restore-zip">Из файла gz</h3>
+
+<p>Сначала распаковываем файл,&nbsp;затем запускаем восстановление:</p>
+
+<div class="console">
+<p>gunzip users.dump.gz</p>
+</div>
+
+<div class="console">
+<p>psql users&nbsp;&lt;&nbsp;users.dump</p>
+</div>
+
+<p>Или одной командой:</p>
+
+<div class="console">
+<p>zcat users.dump.gz | psql users</p>
+</div>
+
+<h3 id="restore-database">Определенную базу</h3>
+
+<p>Если резервная копия делалась для определенной базы, запускаем восстановление:</p>
+
+<div class="console">
+<p>psql users&nbsp;&lt;&nbsp;/tmp/database.dump</p>
+</div>
+
+<p>Если делался полный дамп (всех баз), восстановить определенную&nbsp;можно при помощи утилиты pg_restore с параметром -d:</p>
+
+<div class="console">
+<p>pg_restore&nbsp;-d&nbsp;users cluster.bak</p>
+</div>
+
+<h3 id="restore-table">Определенную таблицу</h3>
+
+<p>Если резервная копия делалась для определенной таблицы, можно просто запустить восстановление:</p>
+
+<div class="console">
+<p>psql users&nbsp;&lt;&nbsp;/tmp/students.dump</p>
+</div>
+
+<p>Если делался полный дамп, восстановить определенную таблицу можно при помощи утилиты pg_restore с параметром -t:</p>
+
+<div class="console">
+<p>pg_restore -a -t students&nbsp;users.dump</p>
+</div>
+
+<h3 id="restore-pgadmin">С помощью pgAdmin</h3>
+
+<p>Запускаем&nbsp;pgAdmin - подключаемся к серверу -&nbsp;кликаем правой кнопкой мыши по базе, для которой хотим восстановить данные - выбираем <strong>Восстановить</strong>:</p>
+
+<p><img alt="Выбираем восстановление базы данных" src="https://www.dmosk.ru/img/miniinstruktions/postgresql-dump-04.jpg" style="width: 329px; height: 298px;" title="Выбираем восстановление базы данных" /></p>
+
+<p>Выбираем наш файл с дампом:</p>
+
+<p><img alt="Выбираем файл с дампом" src="https://www.dmosk.ru/img/miniinstruktions/postgresql-dump-05.jpg" style="width: 424px; height: 104px;" title="Выбираем файл с дампом" /></p>
+
+<p>И кликаем по <strong>Восстановить</strong>:</p>
+
+<p><img alt="Восстанавливаем данные" src="https://www.dmosk.ru/img/miniinstruktions/postgresql-dump-06.jpg" style="width: 426px; height: 61px;" title="Восстанавливаем данные" /></p>
+
+<h3 id="pg-restore">Использование pg_restore</h3>
+
+<p>Данная утилита предназначена для восстановления данных не текстового формата (в одном из примеров создания копий мы тоже делали резервную копию не текстового формата).</p>
+
+<p>Из бинарника:</p>
+
+<div class="console">
+<p>pg_restore -Fc users.bak</p>
+</div>
+
+<p>Из тарбола:</p>
+
+<div class="console">
+<p>pg_restore -Ft&nbsp;users.tar</p>
+</div>
+
+<p>С созданием новой базы:</p>
+
+<div class="console">
+<p>pg_restore -Ft -C users.tar</p>
+</div>
+
+<p>Мы можем использовать опцию d для указания подключения к конкретному серверу и базе, например:</p>
+
+<div class="console">
+<p>pg_restore -d &quot;postgresql://dmosk_user:dmosk_pass@localhost/dmosk_base&quot; -Fc users.bak</p>
+</div>
+
+<p><em>* в данном примере мы подключимся к локальной базе (<strong>localhost</strong>) с названием&nbsp;<strong>dmosk_base</strong> от пользователя&nbsp;<strong>dmosk_user</strong> с паролем <strong>dmosk_pass</strong>.</em></p>
+
+<h2 id="csv">Работа с CSV</h2>
+
+<p>Мы можем&nbsp;переносить данные с использованием файлов csv. Это нельзя назвать напрямую резервным копированием, но в рамках данной инструкции материал будет интересен.</p>
+
+<h3>Создание файла&nbsp;CSV (экспорт)</h3>
+
+<p>Пример запроса (выполняется в командной оболочке SQL):</p>
+
+<div class="console">
+<p>&gt; COPY (SELECT * FROM public.users WHERE name LIKE &#39;А%&#39;) TO &#39;/tmp/users.csv&#39; WITH CSV DELIMITER &#39;;&#39; HEADER;</p>
+</div>
+
+<p><em>* в данном примере мы выгрузим все данные для таблицы&nbsp;<strong>users</strong> в схеме&nbsp;<strong>public</strong>, где значение поля&nbsp;name начинается с буквы <strong>А</strong>. Результат будет сохранен в файл&nbsp;<strong>/tmp/users.csv</strong>. Также мы указываем, что в качестве разделителя данных нужно использовать точку с запятой и первой строкой сделать заголовок.</em></p>
+
+<p>Также мы можем сделать выгрузку, но сделать вывод в оболочку и перенаправить его в файл:</p>
+
+<div class="console">
+<p>psql -d &quot;postgresql://pg_user:pg_pass@localhost:5432/pg_databasename&quot; -c &quot;COPY (SELECT * FROM public.users WHERE name LIKE &#39;А%&#39;) TO STDIN&nbsp;WITH CSV DELIMITER &#39;;&#39; HEADER;&quot; &gt;&nbsp;/tmp/users.csv</p>
+</div>
+
+<h3>Импорт данных из файла&nbsp;CSV</h3>
+
+<p>Также можно выполнить запрос в оболочке SQL:</p>
+
+<div class="console">
+<p>&gt; COPY public.users FROM &#39;/tmp/test.csv&#39; DELIMITER &#39;;&#39; CSV HEADER;</p>
+</div>
+
+<p>Или перенаправить запрос через&nbsp;STDOUT из файла:</p>
+
+<div class="console">
+<p>psql -d &quot;postgresql://pg_user:pg_pass@localhost:5432/pg_databasename&quot; -c &quot;COPY public.users&nbsp;FROM STDOUT DELIMITER &#39;;&#39; CSV HEADER;&quot;&nbsp;&lt;&nbsp;/tmp/users.csv</p>
+</div>
+
+<p><em>* в нашем примере мы выполним импорт данных из ранее созданного файла&nbsp;<strong>/tmp/users.csv</strong> в таблицу&nbsp;<strong>users</strong>.</em></p>
+
+<h2 id="errors">Возможные ошибки</h2>
+
+<p>Рассмотрим некоторые проблемы, с которыми можно столкнуться при работе с дампами PostgreSQL.</p>
+
+<h3 id="Input">Input file appears to be a text format dump. please use psql.</h3>
+
+<p>Причина: дамп сделан в текстовом формате, поэтому нельзя использовать утилиту pg_restore.</p>
+
+<p>Решение: восстановить данные можно командой&nbsp;psql&nbsp;&lt;имя базы&gt; &lt;&nbsp;&lt;файл с дампом&gt; или выполнив SQL, открыв файл,&nbsp;скопировав его содержимое и вставив в SQL-редактор.</p>
+
+<h3 id="No-matching">No matching tables were found</h3>
+
+<p>Причина: Таблица, для которой создается дамп не существует. Утилита pg_dump чувствительна&nbsp;к лишним пробелам, порядку ключей&nbsp;и регистру.</p>
+
+<p>Решение: проверьте, что правильно написано название таблицы и нет лишних пробелов.</p>
+
+<h3 id="Too-many">Too many command-line arguments</h3>
+
+<p>Причина: Утилита pg_dump чувствительна&nbsp;к лишним пробелам.</p>
+
+<p>Решение: проверьте, что нет лишних пробелов.</p>
+
+<h3 id="Aborting">Aborting because of server version mismatch</h3>
+
+<p>Причина: несовместимая&nbsp;версия сервера и утилиты pg_dump. Может возникнуть после обновления или при выполнении резервного копирования с удаленной консоли.</p>
+
+<p>Решение: нужная версия утилиты хранится в каталоге&nbsp;/usr/lib/postgresql/&lt;version&gt;/bin/. Необходимо найти нужный каталог, если их несколько и запускать нужную версию. При отсутствии последней, установить.</p>
+
+<h3 id="No-password">No password supplied</h3>
+
+<p>Причина: нет системной переменной&nbsp;PGPASSWORD или она пустая.</p>
+
+<p>Решение: либо настройте сервер для предоставление доступа без пароля в файле&nbsp;pg_hba.conf либо экспортируйте переменную&nbsp;PGPASSWORD (export PGPASSWORD или set PGPASSWORD).</p>
+
+<h3 id="wrong-command">Неверная команда \</h3>
+
+<p>Причина: при выполнении восстановления возникла ошибка, которую СУБД не показывает при стандартных параметрах восстановления.</p>
+
+<p>Решение: запускаем восстановление с опцией&nbsp;<strong>-v ON_ERROR_STOP=1</strong>, например:</p>
+
+<div class="console">
+<p>psql -v ON_ERROR_STOP=1&nbsp;users&nbsp;&lt;&nbsp;/tmp/users.dump</p>
+</div>
+
+<p>Теперь, когда возникнет ошибка, система прекратит выполнять операцию и выведет сообщение на экран.</p>
+</div>
+		<div class="article-post-categories">
+			<a href='/categories.php?object=linux'># Linux</a> <a href='/categories.php?object=windows'># Windows</a> <a href='/categories.php?object=db'># Базы данных</a> <a href='/categories.php?object=backup'># Резервное копирование</a> <a href='/categories.php?object=servers'># Серверы</a> 		</div>
+		<div class="article-post article-post-inst">
+			<div class="article-post-photo">
+				<img src="/img/public/myph.jpg" width="44" height="57" alt="Дмитрий Моск — частный мастер" title="Дмитрий Моск — частный мастер">
+			</div>
+			<div class="article-post-opros-instruktion">
+				Была ли полезна вам эта инструкция?
+				<p><a rel="nofollow" href="/answer.php?mini=postgresql-dump&answer=yes" class="answer-yes-no">Да</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a rel="nofollow" href="/answer.php?mini=postgresql-dump&answer=no" class="answer-yes-no">Нет</a></p>
+			</div>
+			
+			<div class="article-post-vk">
+				<div id="vk_like"></div>
+			</div>
+			
+			<!--<div class="twitter-but">
+				<a href="//twitter.com/share" class="twitter-share-button" data-count="vertical" data-via="dmoskru">Tweet</a>
+			</div>-->
+
+		</div>
+
+	</div>
+
+	<div class="article-yet">
+				<img src="/img/public/author.jpg" width="350" height="233" alt="Дмитрий Моск" title="Дмитрий Моск — частный мастер">
+		<div class="author-photo">
+			<span itemprop="author">Дмитрий Моск</span> — IT-специалист.<br>
+			<a href='/server.php'>Настройка серверов</a>, <a href='/'>услуги DevOps</a>.
+		</div>
+
+		<div class="article-yet-head"><strong>Мини-инструкции</strong></div>
+		<div class="article-yet-links">
+
+<p><a href="miniinstruktions.php?mini=smtp-telnet">Использование SMTP команд для отправки почты через Telnet</a></p><p><a href="miniinstruktions.php?mini=owncloud-centos7">Установка и настройка OwnCloud на CentOS 7 или 8</a></p><p><a href="miniinstruktions.php?mini=dnssec-bind">Настройка защиты DNS ответов от BIND при помощи DNSSEC</a></p><p><strong>Как создать резервную копию PostgreSQL и восстановиться из нее</strong></p><p><a href="miniinstruktions.php?mini=bind-ubuntu">Как установить и настроить DNS-сервер Bind на Linux Ubuntu</a></p><p><a href="miniinstruktions.php?mini=kvm-ubuntu">Как установить, настроить и создать виртуальную машину в KVM на Ubuntu Server</a></p><p><a href="miniinstruktions.php?mini=kvm-centos7">Как установить, настроить и создать виртуальную машину в KVM на CentOS 7</a></p><p><a href="polezno.php">Весь список ...</a></p>
+		</div>
+
+		<p class="polezno_mail">Нужна помощь? Пишите:</p>
+		<form method="post">
+           	<p>
+           		           		<textarea class="polezno" name="ideya" rows=5 cols=20 placeholder="Что хотите узнать..." required></textarea><br><br>
+               	<input class=polezno name="kontakt" type="text" placeholder="Контактная эл. почта" value="">
+				<br><span class="kontakt-post-text">не обязательно, но для более быстрого ответа</span><br>
+           	</p>
+           	<p>
+           		<input class=but_polezno type="submit" value="Получить инструкцию" name="but_send_ideya">
+           	</p>
+		</form>
+		<br><br>
+		<div class="adsense">
+			<!--noindex-->
+			<div class='ads-head'>Реклама</div>
+			<div id="yandex_rtb_R-A-2121285-1"></div>
+			<!--/noindex-->
+		</div>
+	</div>
+	
+
+<div id="vk_community_messages"></div></div>
+	<div class="progress-scroller"></div>
+	
+		<script src="/jas/jas.js"></script>
+	
+</body>
+</html>

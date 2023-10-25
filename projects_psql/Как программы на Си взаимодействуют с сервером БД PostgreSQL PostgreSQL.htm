@@ -1,0 +1,906 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru" dir="ltr">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Как программы на Си взаимодействуют с сервером БД PostgreSQL | PostgreSQL</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="prev" href="/docs/pgtcl.html" />
+<link rel="up" href="/devdocs.html" />
+<link rel="next" href="/docs/devgist.html" />
+<link rel="shortcut icon" href="/sites/all/themes/pgtheme/favicon.ico" type="image/x-icon" />
+    <link type="text/css" rel="stylesheet" media="all" href="/files/css/css_e23122d1872d15d0ee6a6783eff059be.css" />
+<link type="text/css" rel="stylesheet" media="print" href="/files/css/css_3e2ab6bebd9c4e96371e45b47ca518ea.css" />
+    <script type="text/javascript" src="/files/js/js_ecba527c74338a1aa924a3a9dee0dcb4.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, { "basePath": "/" });
+//--><!]]>
+</script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+if (Drupal.jsEnabled){$(document).ready(function (){$(".ccfilter.tooltip").tooltip({showURL: false, showBody: " + "});$("img.ccfilter.smileys").tooltip({showURL: false});}); }
+//--><!]]>
+</script>
+	<!--[if IE 7]>
+	  <link rel="stylesheet" type="text/css" href="/sites/all/themes/pgtheme/iefixes.css" />
+	<![endif]-->
+	<!--[if IE 6]>
+	  <link rel="stylesheet" type="text/css" href="/sites/all/themes/pgtheme/ie6fixes.css" />
+	<![endif]-->
+	
+  </head>
+  <body class="sidebars">
+	<div id="pgContainerWrap">
+	  <div id="pgContainer">
+  		<div id="pgHeaderContainer">
+    	  <div id="pgHeader">
+			<div id="pgHeaderLogoLeft">
+			  <a href="/" title="Наиболее продвинутая открытая СУБД в мире"></a>
+			</div>
+			<div id="pgHeaderLogoRight"></div>
+		  </div><!-- /header -->
+		  <!-- pgTopNav -->
+		  <div id="pgTopNav">
+			<div id="pgTopNavLeft"></div>
+			<div id="pgTopNavRight"></div>
+	  			    	  			  <ul id="pgTopNavList"><li class="menu-76 first"><a href="/docs.html" title="Каталог документации">Документация</a></li>
+<li class="menu-283"><a href="https://postgresql.men/manual/index.html" title="Частичный перевод официальной документации к PostgreSQL">Мануал</a></li>
+<li class="menu-333"><a href="https://postgresql.men/manual8.4/index.html" title="Частичный перевод официальной документации PostgreSQL 8.4">Мануал 8.4</a></li>
+<li class="menu-77"><a href="/news" title="Все новости">Новости</a></li>
+<li class="menu-84"><a href="/about.html" title="Немного об этом сайте">О сайте</a></li>
+<li class="menu-80"><a href="/community.shtml" title="О поддержке PostgreSQL">Поддержка</a></li>
+<li class="menu-300"><a href="/search" title="Поиск по сайту">Поиск</a></li>
+<li class="menu-79"><a href="/download.html" title="Скачать PostgreSQL и другие файлы">Скачать</a></li>
+<li class="menu-78 last"><a href="/forum" title="Форум по тематике сайта">Форум</a></li>
+</ul>	  				  </div>
+		  <!-- /pgTopNav-->
+  		</div><!-- /wrapper-header -->
+
+		<div id="pgMainWrap"> 
+			<div id="pgMainContainer"> 
+	  	 
+
+							<div id="sidebar-left" class="sidebar">
+			<div id="block-user-1" class="block block-user">
+
+  <h2 class="title"> Навигация</h2>
+
+  	<div class="content"><ul class="menu"><li class="leaf first"><a href="/contact" title="Здесь вы можете написать сообщение администратору сайта">Обратная связь</a></li>
+<li class="leaf last"><a href="/tracker">Последние публикации</a></li>
+</ul></div>    
+</div>
+<div id="block-block-3" class="block block-block">
+
+
+  	<div class="content"><div class="sape">
+<noindex><h2>Реклама</h2></noindex>
+<!--85770--></div>
+</div>    
+</div>
+<div id="block-user-0" class="block block-user">
+
+  <h2 class="title"> Вход для пользователей</h2>
+
+  	<div class="content"><form action="/docs/develc.html?destination=node%2F214152"  accept-charset="UTF-8" method="post" id="user-login-form">
+<div><div class="form-item" id="edit-name-wrapper">
+ <label for="edit-name">Имя пользователя: <span class="form-required" title="Данное поле является обязательным.">*</span></label>
+ <input type="text" maxlength="60" name="name" id="edit-name" size="15" value="" class="form-text required" />
+</div>
+<div class="form-item" id="edit-pass-wrapper">
+ <label for="edit-pass">Пароль: <span class="form-required" title="Данное поле является обязательным.">*</span></label>
+ <input type="password" name="pass" id="edit-pass"  maxlength="60"  size="15"  class="form-text required" />
+</div>
+<input type="submit" name="op" id="edit-submit" value="Войти"  class="form-submit" />
+<div class="item-list"><ul><li class="first"><a href="/user/register" title="Создать новую учётную запись пользователя.">Создать новую учётную запись</a></li>
+<li class="last"><a href="/user/password" title="Затребовать новый пароль через E-mail.">Запросить новый пароль</a></li>
+</ul></div><input type="hidden" name="form_build_id" id="form-XMMAFmwRwmnuBmAv2yJws6WNx-m_bwvorw_qJlaaYs0" value="form-XMMAFmwRwmnuBmAv2yJws6WNx-m_bwvorw_qJlaaYs0"  />
+<input type="hidden" name="form_id" id="edit-user-login-block" value="user_login_block"  />
+
+</div></form>
+</div>    
+</div>
+      	</div><!-- /sidebar-left -->
+      
+			<div id="center">		  
+		  	<div class="breadcrumb"><a href="/">Начальная страница</a> › <a href="/docs.html">Документация</a> › <a href="/devdocs.html">Документация для разработчиков</a></div>												<h2>Как программы на Си взаимодействуют с сервером БД PostgreSQL</h2>			                                    								<div class="node">
+  
+  <div class="picture">
+  </div>
+  
+  
+      <span class="submitted">Posted Сентябрь 14th, 2010 by admin</span> 
+  
+    
+  <div class="content">
+    <p><span style="font-size: 14pt;">Владимир Мешков</span></p>
+
+<p><i>PostgreSQL является эффективным средством для хранения и&nbsp;обработки
+информации. Разработчики этой СУБД предоставили интерфейсы для многих языков
+программирования. Поддержка таких языков, как Perl, PHP, Python, обеспечивает
+широкое применение PostgreSQL в&nbsp;области веб-программирования. Язык
+системного программирования Cи позволит использовать эту СУБД, когда необходимо
+добиться от приложения максимального быстродействия.</i></p>
+
+<p>С егодня мы рассмотрим пример взаимодействия программы на языке Си и сервера
+баз данных PostgreSQL c использованием библиотеки libpq. В&nbsp;случае
+отсутствия опыта работы с СУБД PostgreSQL рекомендую начать изучение этой темы
+со статьи Сергея Супрунова [1].</p>
+
+<p><span style="font-size: 18pt; color: rgb(124, 23, 36);">Обзор библиотеки libpq</span></p>
+
+<p>Библиотека libpq является программным интерфейсом, обеспечивающим
+взаимодействие программы, составленной на языке Си, с сервером баз данных PostgreSQL.
+Эта&nbsp;библиотека содержит набор функций, позволяющих клиентской программе
+обмениваться информацией с базой данных. Библиотека входит в состав
+дистрибутива СУБД PostgreSQL.</p>
+
+<p style="text-indent: 14.2pt;">Для выполнения информационного обмена клиентская
+программа вначале должна подключиться к базе данных. Для связи с сервером баз
+данных используется механизм сокетов, при этом если клиент и сервер расположены
+на&nbsp;одной локальной машине, используется сокет домена AF_UNIX, в случае
+расположения на удаленных машинах – сокет домена AF_INET. Тип домена
+указывается в параметрах системного вызова socket.</p>
+
+<p style="text-indent: 14.2pt;">Для хранения адресной информации сокет домена
+AF_UNIX использует структурный тип sockaddr:</p>
+
+<pre>
+struct sockaddr {
+&nbsp;&nbsp;&nbsp; sa_family_t sa_family;
+&nbsp;&nbsp;&nbsp; char sa_data[14];
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Поле sa_family определяет тип домена, к которому
+принадлежит сокет (AF_UNIX в нашем случае), массив sa_data содержит путь к
+файлу, который описывает сокет.</p>
+
+<p style="text-indent: 14.2pt;">Таким образом, сокет домена AF_UNIX представляет
+собой специальный файл. Сервер PostgreSQL после запуска по умолчанию создает в
+каталоге /tmp сокет домена AF_UNIX в виде файла .s.PGSQL.5432, посмотреть на
+который можно при помощи команды ls -la. Среди прочих файлов будет запись
+следующего вида:</p>
+
+<pre>
+srwxrwxrwt 1 pgsql users 0 Okt 4 10:37 .s.PGSQL.5432
+</pre>
+
+<p style="text-indent: 14.2pt;">Литера «s» перед правами доступа означает, что
+данный файл является сокетом.</p>
+
+<p style="text-indent: 14.2pt;">Команда netstat -a позволяет нам убедиться, что
+файл /tmp/.s.PGSQL.5432 входит в список активных сокетов домена AF_UNIX. Введем
+эту команду и увидим запись примерно такого вида:</p>
+
+<pre>
+unix 2 [ ACC ] STREAM LISTENING 20636071 /tmp/.s.PGSQL.5432
+</pre>
+
+<p style="text-indent: 14.2pt;">Для лучшего понимания рассмотрим тестовый пример
+взаимодействия процессов через сокет домена AF_UNIX. Ниже представлены два
+листинга – серверного и клиентского процесса. В целях экономии места обработка
+ошибок пропущена.</p>
+
+<pre>
+Листинг 1. Серверный процесс
+
+#include &lt;sys/types.h&gt;
+#include &lt;sys/socket.h&gt;
+
+int main()
+{
+&nbsp;&nbsp;&nbsp; int sock, newsock;
+&nbsp;&nbsp;&nbsp; struct sockaddr saddr;
+&nbsp;&nbsp;&nbsp; char c;
+&nbsp;&nbsp;&nbsp; static char rc = 1;
+/* Создаем сокет домена AF_UNIX */
+&nbsp;&nbsp;&nbsp; sock = socket(AF_UNIX, SOCK_STREAM, 0);
+
+/* Заполняем адресную структуру saddr */
+&nbsp;&nbsp;&nbsp; memset((void *)&amp;saddr,0, sizeof(saddr));
+&nbsp;&nbsp;&nbsp; saddr.sa_family = AF_UNIX; /* тип домена */
+
+&nbsp;&nbsp;&nbsp; /* путь к файлу */
+&nbsp;&nbsp;&nbsp; memcpy(saddr.sa_data,"/tmp/.sock.new", 14);
+
+&nbsp;&nbsp;&nbsp; bind(sock, (struct sockaddr *)&amp;saddr, sizeof(struct sockaddr));
+
+&nbsp;&nbsp;&nbsp; listen(sock, 1);
+
+&nbsp;&nbsp;&nbsp; for(;;) {
+&nbsp;&nbsp;&nbsp; newsock = accept(sock,NULL, NULL);
+&nbsp;&nbsp;&nbsp; if(fork() == 0) {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; while(recv(newsock, &amp;c, 1, 0) &gt; 0) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; send(newsock, &amp;i, 1, 0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i++;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; close(newsock);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; exit(0);
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; close(newsock);
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; return 0;
+}
+
+Листинг 2. Клиентский процесс
+
+int main()
+{
+&nbsp;&nbsp;&nbsp; int sock;
+&nbsp;&nbsp;&nbsp; struct sockaddr saddr;
+&nbsp;&nbsp;&nbsp; char c, rc;
+
+&nbsp;&nbsp;&nbsp; sock = socket(AF_UNIX,SOCK_STREAM, 0);
+
+&nbsp;&nbsp;&nbsp; memset((void *)&amp;saddr, 0, sizeof(saddr));
+
+&nbsp;&nbsp;&nbsp; saddr.sa_family = AF_UNIX;
+
+&nbsp;&nbsp;&nbsp; memcpy(saddr.sa_data,"/tmp/.sock.new", 14);
+
+&nbsp;&nbsp;&nbsp; connect(sock, (struct sockaddr *)&amp;saddr, sizeof(struct sockaddr));
+
+&nbsp;&nbsp;&nbsp; for(;;) {
+&nbsp;&nbsp;&nbsp; c = getchar();
+&nbsp;&nbsp;&nbsp; send(sock, &amp;c, 1, 0);
+&nbsp;&nbsp;&nbsp; if(recv(sock, &amp;rc, 1, 0) &gt; 0) printf("From server: %d\n", rc);
+&nbsp;&nbsp;&nbsp; else {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; close(sock);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; exit(0);
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; return 0;
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Запустим процессы в разных терминалах. Сервер
+после запуска создаст в каталоге /tmp файл .sock.new. Через этот файл будет
+осуществляться взаимодействие между клиентом и сервером: клиент будет
+отправлять серверу символы, вводимые пользователем, а сервер будет возвращать
+числовые значения, каждый раз увеличивая их на 1. При&nbsp;этом на каждый
+введенный символ сервер отвечает двумя. Тут&nbsp;все правильно, т.к. серверу
+передается еще и символ перевода строки «\n», вот он на него и реагирует.</p>
+
+<p style="text-indent: 14.2pt;">После остановки сервера сигналом SIGINT
+(комбинация клавиш &lt;Ctrl+C&gt;) файл .sock.new останется в каталоге /tmp.
+Его необходимо удалить вручную, или переопределить обработчик сигнала SIGINT
+для закрытия сокета и удаления файла .sock.new, иначе при повторном запуске
+сервера системный вызов bind не сможет привязать адресную структуру к сокету,
+сообщая нам, что «Address already in use (адрес уже используется)».</p>
+
+<p style="text-indent: 14.2pt;">Вернемся к рассмотрению темы статьи. Итак, для
+подключения к серверу баз данных библиотека предоставляет несколько функций, но
+мы рассмотрим одну – PQsetdbLogin. Прототип этой функции имеет следующий вид:</p>
+
+<pre>
+PGconn *PQsetdbLogin(const char *pghost,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const char *pgport, const char *pgoptions,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const char *pgtty, const char *dbName,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const char *login, const char *pwd);
+</pre>
+
+<p class="MsoNormal" style="text-indent: 14.2pt;">Эта функция устанавливает новое
+соединение с базой данных, которое описывается при помощи объекта типа&nbsp;PGconn.
+Параметрами функции являются:</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>pghost </b>– если сервер и клиент расположены
+на локальном хосте, этот параметр принимает значение NULL,
+и&nbsp;взаимодействие с сервером осуществляется через сокет домена AF_UNIX, по
+умолчанию расположенный в каталоге /tmp. При работе через сеть это поле
+содержит имя или IP-адрес хоста, на котором находится сервер баз данных;</p>
+
+<pre>
+&nbsp; <b>pgport </b>– номер порта (NULL для локального хоста);
+</pre>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>pgoptions </b>– дополнительные опции,
+посылаемые серверу для трассировки/отладки соединения;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>pgtty </b>– терминал или файл для вывода
+отладочной информации;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>dbName </b>– имя базы данных;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>login, pwd</b> – имя пользователя и пароль
+доступа к базе данных.</p>
+
+<p class="MsoNormal" style="text-indent: 14.2pt;"><span lang="EN-US">&nbsp;</span></p>
+
+<p class="MsoNormal" style="text-indent: 14.2pt;">Функция PQsetdbLogin всегда
+возвращает указатель на&nbsp;объект типа PGconn, независимо от того, успешно было
+установлено соединение или нет. Проверку состояния соединения выполняет функция
+PQstatus. Объект типа PGconn передается этой функции в качестве параметра,
+возвращаемое функцией значение характеризует состояние соединения:</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>CONNECTION_BAD</b> – не удалось установить
+соединение с базой данных;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>CONNECTION_OK</b> – соединение с базой
+данных успешно установлено.</p>
+
+<p style="text-indent: 14.2pt;">Эти значения определены в заголовочном файле libpqfe.h.</p>
+
+<p style="text-indent: 14.2pt;">После установления соединения клиентская
+программа может приступить к обмену информацией с базой данных. Для этой цели
+библиотека libpq предоставляет функцию PQexec, прототип которой имеет следующий
+вид:</p>
+
+<pre>
+PGresult *PQexec(PGconn *conn, const char *query);
+</pre>
+
+<p style="text-indent: 14.2pt;">Параметрами функции PQexec являются указатель
+на&nbsp;объект типа PGconn (результат работы функции PQsetdbLogin) и строка,
+содержащая запрос к базе данных. Отправив запрос, функция ожидает ответ от базы
+и сохраняет в структуре типа Pgresult статус запроса и данные, полученные от
+базы. Для обработки статуса запроса к базе данных используется функция PGresultStatus.</p>
+
+<pre>
+ExecStatusType PQresultStatus(const PGresult *res);
+</pre>
+
+<p class="MsoNormal" style="text-indent: 14.2pt;">Функция PQresultStatus может
+возвращать следующие значения, определенные в файле libpq-fe.h:</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>PGRES_EMPTY_QUERY</b> – серверу отправлена
+пустая строка запроса;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>PGRES_COMMAND_OK</b> – запрос, не требующий
+возврата данных из базы, выполнен успешно;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>PGRES_TUPLES_OK</b> – успешное чтение данных
+из базы;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>PGRES_FATAL_ERROR</b> – при обращении к базе
+данных произошла критическая ошибка.</p>
+
+<p style="text-indent: 14.2pt;">Если статус запроса равен PGRES_TUPLES_OK,
+структура PGresult будет содержать данные, полученные от базы. Данные
+представляют собой последовательность (кортеж) строк таблицы, и каждая строка
+состоит из нескольких ячеек. Выполнить выборку содержимого определенной ячейки
+можно при помощи функции PQgetvalue:</p>
+
+<pre>char* PQgetvalue(const PGresult *res, int tup_num, int field_num);</pre>
+
+<p style="text-indent: 14.2pt;">Здесь tup_num – это номер строки таблицы, а field_num&nbsp;–
+номер ячейки в строке, из которой считываются данные. Для определения числа строк,
+считанных из таблицы, используется функция PQntuples (tuple в переводе с
+английского означает кортеж, последовательность):</p>
+
+<p class="MsoNormal" style="margin-left: 5.65pt; text-indent: 8.5pt;"><b><span style="font-size:&nbsp;<img class="ccfilter smileys" src="https://pgdocs.ru/sites/all/modules/ccfilter/smileys/ap.gif" alt="8p" title="8p" />t; font-family: &quot;Courier New&quot;;">int PQntuples(const PGresult
+*res);</span></b></p>
+
+<p style="text-indent: 14.2pt;">Функция PQnfields вернет число ячеек в одной
+строке таблицы:</p>
+
+<pre>
+int PQnfields(const PGresult *res);
+</pre>
+
+<p style="text-indent: 14.2pt;">По окончании информационного обмена с базой
+данных клиентская программа должна при помощи функции PQclear освободить
+структуру PGresult, содержащую результаты запроса, и отключиться от базы,
+вызвав функцию PQfinish:</p>
+
+<pre>
+void PQclear(PQresult *res);
+void PQfinish(PGconn *conn);
+</pre>
+
+<p><span style="font-size: 18pt; color: rgb(124, 23, 36);">Пример использования библиотеки
+libpq</span></p>
+
+<p>Рассмотрим простой пример использования библиотеки. Предположим, что у нас
+имеется каталог, содержащий файлы различных типов (в том числе и специальные).
+Мы&nbsp;составим две программы на языке Си: первая программа будет выполнять
+обход указанного ей каталога, считывать и&nbsp;заносить в базу данных имена и
+размеры всех регулярных файлов из этого каталога и всех вложенных каталогов.
+Вторая программа будет считывать информацию об этих файлах из базы данных и выводить
+ее на экран.</p>
+
+<p style="text-indent: 14.2pt;">Для выполнения этой задачи устанавливаем на
+локальную машину СУБД PostgreSQL (см. [1]). После инициализации базы данных
+создаем нового пользователя my_user и&nbsp;новую базу my_database:</p>
+
+<pre>
+createuser -a -d my_user -E -P
+createdb -O my_user my_database
+</pre>
+
+<p style="text-indent: 14.2pt;">Для доступа к базе данных пользователь my_user
+должен указать пароль. Сам пароль будет храниться в зашифрованном виде, в
+конфигурационном файле pg_hba.conf меняем значение поля METHOD c trust на md5.</p>
+
+<p style="text-indent: 14.2pt;">Далее, подключаемся к базе данных my_database и
+создаем в ней таблицу, состоящую из двух полей: поля fname типа char(100) для
+хранения имен файлов и поля fsize типа int для хранения размеров файлов.</p>
+
+<p><span style="font-size: 16pt; color: rgb(47, 107, 134);">Заполнение базы данных
+информацией</span></p>
+
+<p>Первый этап разработки – программа для заполнения базы данных информацией.
+Назовем ее insert_data. Входные параметры – имя базы данных, имя таблицы в базе
+и имя&nbsp;каталога, из которого будут считываться данные о файлах&nbsp;–
+передаются в параметрах командной строки:</p>
+
+<pre># ./insert_data -d [имя базы данных] -t [имя таблицы] -p [имя каталога]</pre>
+
+<p style="text-indent: 14.2pt;">Определим переменные для хранения имен базы
+данных, таблицы и каталога для чтения:</p>
+
+<pre>
+unsigned char *dbname = NULL; /* имя базы данных */
+unsigned char *table = NULL; /* имя таблицы */
+unsigned char *pathname = NULL; /* каталог, из которого считываются данные */
+</pre>
+
+<p style="text-indent: 14.2pt;">Проверяем число переданных аргументов. Их должно
+быть 7:</p>
+
+<pre>if(argc != 7) usage();</pre>
+
+<p style="text-indent: 14.2pt;">Если количество переданных аргументов не
+соответствует указанному значению, при помощи функции usage() отобразим формат
+вызова нашей программы:</p>
+
+<pre>
+void usage()
+{
+&nbsp;&nbsp;&nbsp; fprintf(stderr, "Usage: insert_data -d [имя базы данных] -t [имя таблицы] -p [исходный каталог]\n");
+&nbsp;&nbsp;&nbsp; exit(0);
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Считываем параметры командной строки. Разбор
+командной строки выполним при помощи функции getopt:</p>
+
+<pre>
+while((int c = getopt(argc, argv, "d:t:p:")) != EOF) {
+&nbsp;&nbsp;&nbsp; switch(c) {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; case 'd':
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* имя базы данных */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbname = (unsigned char *)optarg;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; case 't':
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* имя таблицы */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table = (unsigned char *)optarg;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; case 'p':
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* имя каталога */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pathname = (unsigned char *)optarg;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; /* ошибка в параметрах */
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; case '?':
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; default:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; usage();
+&nbsp;&nbsp;&nbsp; }
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Считываем имя пользователя и пароль для доступа
+к&nbsp;базе данных:</p>
+
+<pre>
+unsigned char user[80]; /* имя пользователя */
+unsigned char pwd[80]; /* пароль доступа к базе данных */
+
+memset(user, 0, sizeof(user));
+printf("Login: ");
+scanf("%s", user);
+
+memset(pwd, 0, 80);
+printf("Password:");
+</pre>
+
+<p style="text-indent: 14.2pt;">Перед тем как ввести пароль, из соображений
+безопасности отключим отображение вводимых символов на экране, изменив
+настройки управляющего терминала. Для управления свойствами терминала
+используются функции tcgetattr и tcsetattr:</p>
+
+<pre>
+#include &lt;termios.h&gt;
+int tcgetattr(int ttyfd, struct termios *told);
+int tcsetattr(int ttyfd, int actions, const struct termios *tnew);
+</pre>
+
+<p class="MsoNormal" style="text-indent: 14.2pt;">Функция tcgetattr сохраняет
+текущее состояние терминала в структуре told типа termios. Параметр ttyfd
+должен быть дескриптором файла, описывающего терминал. Для&nbsp;получения
+доступа к своему управляющему терминалу процесс может использовать имя файла /dev/tty,
+которое всегда интерпретируется как текущий управляющий терминал или
+стандартный вывод с дескриптором 0. Вызов функции tcsetattr установит новое
+состояние терминала, заданное структурой tnew, а параметр actions определяет,
+когда и как будут установлены новые атрибуты терминала:</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>TCSNOW</b> – немедленное выполнение
+изменений;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>TCSADRAIN</b> – перед установкой новых
+параметров ожидается опустошение очереди вывода;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>TCSAFLUSH</b> – ожидается опустошение
+очереди вывода, затем также очищается очередь ввода.</p>
+
+<p style="text-indent: 14.2pt;">Для доступа к управляющему терминалу открываем
+соответствующий файл устройства:</p>
+
+<pre>
+int ttyfd = open("/dev/tty",O_RDWR);
+</pre>
+
+<p style="text-indent: 14.2pt;">Далее считываем текущее состояние терминала
+в&nbsp;структуру struct termios t, снимаем флаг отображения символов ECHO в
+поле c_lflag и устанавливаем новое состояние терминала:</p>
+
+<pre>
+tcgetattr(ttyfd, &amp;t); /* сохраняем настройки терминала */
+t.c_lflag &amp;= ~ECHO; /* сбрасываем флаг ECHO */
+tcsetattr(ttyfd, TCSANOW, &amp;t); /* устанавливаем новое состояние терминала */
+</pre>
+
+<p style="text-indent: 14.2pt;">Наличие флага TCSANOW требует немедленного
+выполнения изменений. Подробности управления терминалом смотрите в man termios.</p>
+
+<p style="text-indent: 14.2pt;">После этих действий вводим пароль для доступа к
+базе данных:</p>
+
+<pre>
+scanf("%s", pwd);
+</pre>
+
+<p style="text-indent: 14.2pt;">Вернем настройки терминала в исходное состояние –
+включим отображение вводимых символов на экране:</p>
+
+<pre>
+t.c_lflag |= ECHO; /* устанавливаем флаг ECHO */
+tcsetattr(ttyfd, TCSANOW, &amp;t);
+close(ttyfd);
+</pre>
+
+<p style="text-indent: 14.2pt;">Подключаемся к базе данных, вызвав функцию PQsetdbLogin.
+Эта функция вернет указатель на объект типа PGconn, независимо от того, успешно
+было установлено соединение или нет:</p>
+
+<pre>
+PGconn *conn = PQsetdbLogin(NULL, NULL, NULL, NULL, dbname, user, pwd);
+</pre>
+
+<p style="text-indent: 14.2pt;">Первые четыре параметра функции PQsetdbLogin
+установлены в NULL, так как сервер баз данных находится на&nbsp;локальной
+машине, и дополнительных опций мы ему не&nbsp;передаем. Если сервер расположен
+на удаленной машине, то&nbsp;вызов функции PQsetdbLogin примет следующий вид:</p>
+
+<pre>
+PQsetdbLogin("192.168.1.1", "5432", NULL, NULL, dbname, user, pwd),
+</pre>
+
+<p>где 192.168.1.1 – IP адрес хоста, на котором установлен сервер баз данных,
+5432 – порт, который слушает база.</p>
+
+<p style="text-indent: 14.2pt;">Анализируем состояние соединения и в случае
+ошибки завершаем выполнение программы:</p>
+
+<pre>if(PQstatus(conn) == CONNECTION_BAD) {
+&nbsp;&nbsp;&nbsp; fprintf(stderr, "Connection to database failed.\n");
+&nbsp;&nbsp;&nbsp; fprintf(stderr, "%s", PQerrorMessage(conn));
+&nbsp;&nbsp;&nbsp; exit(1);
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">При успешном установлении соединения с базой
+данных считываем необходимую нам информацию из указанного каталога. Считывание
+выполняет рекурсивная функция list_dir(), в параметрах которой мы передаем
+указатель на объект типа PGconn, имя таблицы в базе данных и имя каталога:</p>
+
+<pre>
+int list_dir(PGconn *conn, unsigned char *table, 
+&nbsp;&nbsp;&nbsp; unsigned char *pathname)
+{
+&nbsp;&nbsp;&nbsp; struct dirent *d;
+&nbsp;&nbsp;&nbsp; struct stat s;
+&nbsp;&nbsp;&nbsp; DIR *dp;
+&nbsp;&nbsp;&nbsp; PGresult *res; /* результат обращения к базе данных */
+&nbsp;&nbsp;&nbsp; unsigned char full_path[256];
+/* абсолютное путевое имя файла */
+&nbsp;&nbsp;&nbsp; unsigned char query[QUERY_LEN];
+/* строка запроса к базе данных */
+&nbsp;&nbsp;&nbsp; unsigned char escape_string[80];
+/* данные, передаваемые базе */
+
+&nbsp;&nbsp;&nbsp; /* Открываем каталог */
+&nbsp;&nbsp;&nbsp; if((dp = opendir(pathname)) == NULL) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; perror("opendir");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return -1;
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; /* Пропускаем родительский и текущий каталоги */
+
+&nbsp;&nbsp;&nbsp; d = readdir(dp); //"."
+&nbsp;&nbsp;&nbsp; d = readdir(dp); //".."
+
+&nbsp;&nbsp;&nbsp; /* Цикл чтения записей каталог */
+&nbsp;&nbsp;&nbsp; while(d = readdir(dp)) {
+&nbsp;&nbsp;&nbsp; /* Формируем абсолютное путевое имя файла и получаем информацию о нем */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; memset(full_path, 0, 256);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(full_path,"%s/%s", pathname, d-&gt;d_name);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stat(full_path,&amp;s);
+
+&nbsp;&nbsp;&nbsp; /* Если это каталог – выполняем рекурсивный вызов функции */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(S_ISDIR(s.st_mode)) list_dir(conn, table, full_path);
+
+&nbsp;&nbsp;&nbsp; /* Добавляем в базу информацию о файле, при этом преобразуем путевое имя файла при помощи */
+
+&nbsp;&nbsp;&nbsp; /* функции PQescapeString */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; memset(escape_string, 0, 80);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PQescapeString(escape_string, full_path, 80);
+
+&nbsp;&nbsp;&nbsp; /* Формируем запрос и отправляем его базе данных */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; memset(query, 0, QUERY_LEN);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(query, "INSERT INTO %s values('%s','%u')", table, full_path, s.st_size);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; res = PQexec(conn, query);
+
+&nbsp;&nbsp;&nbsp; /* Проверяем статус запроса. Он должен быть равен PGRES_COMMAND_OK, т.к. данных от базы мы не получаем */
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fprintf(stderr, "INSERT query failed.\n");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; closedir(dp);
+&nbsp;&nbsp;&nbsp; PQclear(res);
+&nbsp;&nbsp;&nbsp; return 0;
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">После записи информации в базу данных отключаемся от нее:</p>
+<pre>
+PQfinish(conn);
+</pre>
+
+<p style="text-indent: 14.2pt;">Если функцию PQfinish не вызвать, то в данном
+случае ничего страшного не произойдет, потому что процесс завершает выполнение.
+Ядро удаляет процесс из общего списка, уничтожая все служебные структуры,
+описывающие файлы и сокеты, с которыми процесс работал, а значение дескриптора сокета
+(так же как и файла) имеет смысл только в контексте процесса, так как по сути
+это индекс в массиве структур.</p>
+
+<p style="text-indent: 14.2pt;">Если вместо функции отключения от базы перед
+выходом из программы организовать бесконечный цикл и ввести в соседнем
+терминале команду netstat, то можно увидеть, что процесс установил соединение с
+базой данных через сокет домена AF_UNIX. При остановке процесса сигналом SIGINT
+(комбинация клавиш Ctrl-C) это соединение исчезает, даже если мы не вызываем
+функцию PQfinish. Другое дело, если процесс не закрыл соединение и продолжает
+функционировать (например, если это фоновый процесс). Тогда возможна ситуация
+несанкционированного использования уже установленного соединения (сокет не
+закрыт) для доступа к базе данных, и при этом необязательно знать пароль.
+Поэтому закрывать соединение надо явно.</p>
+
+<p style="text-indent: 14.2pt;">Вместо рассмотренной рекурсивной функции list_dir
+в&nbsp;нашем примере удобнее использовать функцию ftw, которая выполняет обход
+дерева каталогов, начиная с заданного, и вызывающая процедуру, определенную
+пользователем для каждой встретившейся записи каталога. Функция ftw имеет
+следующий вид:</p>
+
+<pre>
+#include &lt;ftw.h&gt;
+int ftw(const char *path, int(*func)(), int depth);
+</pre>
+
+<p style="text-indent: 14.2pt;">Первый параметр path определяет имя каталога, с
+которого должен начаться рекурсивный обход дерева. Параметр depth управляет
+числом используемых функцией ftw различных дескрипторов файлов. Чем больше
+значение depth, тем меньше будет случаев повторного открытия каталогов, что
+сократит общее время обработки вызова. Второй параметр func – это определенная
+пользователем функция, вызываемая для каждого файла или каталога, найденного в
+поддереве каталога path. При каждом вызове функции func будут передаваться три
+аргумента: заканчивающаяся нулевым символом строка с именем объекта, указатель
+на структуру stat с данными об объекте и&nbsp;целочисленный код. Функция func,
+следовательно, должна быть построена следующим образом:</p>
+
+<pre>
+int func(const char *name, const struct stat *sptr, int type)
+{
+&nbsp;&nbsp;&nbsp; /* Тело функции */
+}
+</pre>
+
+<p class="MsoNormal" style="text-indent: 14.2pt;">Целочисленный аргумент type может
+принимать одно из нескольких возможных значений, определенных
+в&nbsp;заголовочном файле и описывающих тип встретившегося объекта:</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>FTW_F</b> – объект является файлом;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>FTW_D</b> – объект является каталогом;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>FTW_DNR</b> – объект является каталогом,
+который нельзя прочесть;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>FTW_SL</b> – объект является символьной
+ссылкой;</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;"><span style="color: rgb(170, 89, 45);">n</span>&nbsp; <b>FTW_NS</b> – объект не является символьной
+ссылкой, для&nbsp;него нельзя успешно выполнить вызов stat.</p>
+
+<p style="text-indent: 14.2pt;">Работа вызова будет продолжаться до тех пор, пока
+не будет завершен обход дерева или не возникнет ошибка внутри функции ftw.
+Обход также закончится, если определенная пользователем функция возвратит
+ненулевое значение. Тогда функция ftw прекратит работу и вернет значение,
+возвращенное функцией пользователя. Ошибки внутри функции ftw приведут к
+возврату значения -1, тогда в переменной errno будет выставлен соответствующий
+код ошибки.</p>
+
+<p style="text-indent: 14.2pt;">Вызовем в нашей программе вместо рекурсивной
+функции list_dir функцию ftw:</p>
+
+<pre>ftw(pathname, list_dir1, 1);</pre>
+
+<p style="text-indent: 14.2pt;">Функция list_dir1 передает базе данных информацию
+о&nbsp;каждом регулярном файле:</p>
+
+<pre>int list_dir1(const char *name, const struct stat *s, 
+&nbsp;&nbsp;&nbsp; int type)
+{
+&nbsp;&nbsp;&nbsp; PGresult *res;
+&nbsp;&nbsp;&nbsp; /* строка запроса к базе данных */
+&nbsp;&nbsp;&nbsp; unsigned char query[QUERY_LEN];
+&nbsp;&nbsp;&nbsp; unsigned char escape_string[80];
+
+&nbsp;&nbsp;&nbsp; /* Возвращаемся, если вызов stat завершился неудачно */
+&nbsp;&nbsp;&nbsp; if(type == FTW_NS) return 0;
+
+&nbsp;&nbsp;&nbsp; /* Если объект является регулярным файлом, добавляем информацию о нем в базу */
+&nbsp;&nbsp;&nbsp; if((type == FTW_F) &amp;&amp; S_ISREG(s-&gt;st_mode)) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; memset(escape_string,
+0, sizeof(escape_string));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PQescapeString(escape_string,
+name, sizeof(escape_string));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; memset(query, 0, QUERY_LEN);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(query, "INSERT INTO %s values('%s','%u')", table, name, s-&gt;st_size);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; res = PQexec(conn, query);
+&nbsp;&nbsp;&nbsp; /* Проверяем статус запроса */
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(PQresultStatus(res) !=PGRES_COMMAND_OK) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fprintf(stderr, "INSERT query failed.\n");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return -1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PQclear(res);
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; return 0;
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Для получения исполняемого модуля введем команду:</p>
+
+<pre># gcc -o insert_data insert_data.c -lpq</pre>
+
+<p><span style="font-size: 16pt; color: rgb(47, 107, 134);">Чтение информации из базы
+данных</span></p>
+
+<p>Второй этап разработки – программа для чтения информации из базы данных.
+Строится она по такому же принципу, как и предыдущая: в параметрах командной
+строки передаются имя базы данных и таблицы, выполняется ввод имени и пароля,
+при этом отображение вводимых символов отключается. После этого подключаемся к
+базе данных:</p>
+
+<pre># gcc -o insert_data insert_data.c -lpq
+
+conn = PQsetdbLogin(NULL, NULL, NULL, NULL, dbname, user, pwd);
+if(PQstatus(conn) == CONNECTION_BAD) {
+&nbsp;&nbsp;&nbsp; fprintf(stderr, "Connection to database failed.\n");
+&nbsp;&nbsp;&nbsp; fprintf(stderr, "%s", PQerrorMessage(conn));
+&nbsp;&nbsp;&nbsp; exit(1);
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Формируем и отправляем запрос к базе для выборки
+всех полей из таблицы:</p>
+
+<pre>
+memset(query, 0, QUERY_LEN);
+sprintf(query, "SELECT * FROM %s", table);
+res = PQexec(conn, query);
+</pre>
+
+<p style="text-indent: 14.2pt;">В случае успешного чтения данных из базы статус
+запроса должен быть равен PGRES_TUPLES_OK. Проверяем это:</p>
+
+<pre>if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+&nbsp;&nbsp;&nbsp; fprintf(stderr, "SELECT query failed.\n");
+&nbsp;&nbsp;&nbsp; goto out;
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Отображаем результаты чтения:</p>
+
+<pre>
+for(i = 0; i &lt; PQntuples(res); i++) {
+&nbsp;&nbsp;&nbsp; for(n = 0; n &lt; PQnfields(res); n++) printf("%-20s", PQgetvalue(res, i, n));&nbsp;&nbsp;&nbsp; printf("\n");
+}
+</pre>
+
+<p style="text-indent: 14.2pt;">Функция PQntuples вернет число прочитанных из
+таблицы строк, а функция PQnfields – число ячеек в одной строке.</p>
+
+<p style="text-indent: 14.2pt;">Работоспособность программ была проверена для ОС Linux
+Slackware 10.2 и FreeBSD 5.2, использовался сервер баз данных PostgreSQL 8.0.3.</p>
+
+<p class="MsoNormal"><span style="font-size: 18pt; color: rgb(124, 23, 36);">Литература:</span></p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;">1. Супрунов
+С. PostgreSQL: первые шаги. – Журнал «Системный администратор», №7, 2004 г. –
+26-33 с (<span lang="EN-US"><a href="http://www.samag.ru/cgi-bin/go.pl?q=articles;n=07.2004;a=06">http<span lang="RU">://</span>www<span lang="RU">.</span>samag<span lang="RU">.</span>ru<span lang="RU">/</span>cgi<span lang="RU">-</span>bin<span lang="RU">/</span>go<span lang="RU">.</span>pl<span lang="RU">?</span>q<span lang="RU">=</span>articles<span lang="RU">;</span>n<span lang="RU">=07.2004;</span>a<span lang="RU">=06</span></a></span>).</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;">2. PostgreSQL
+7.3.2 Programmer’s Guide by The PostgreSQL Global Development Group.</p>
+
+<p class="MsoNormal" style="margin-left: 14.2pt; text-indent: -11.35pt;">3. Кейт Хэвиленд,
+Дайна Грей, Бен Салама. Системное программирование в UNIX. Руководство
+программиста по разработке ПО = Unix System Programming. A programmer’s guide to
+software development: Пер. с англ. – М., ДМК Пресс, 2000 г.&nbsp;– 368 с., ил.</p>  <div id="book-navigation-1" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/docs/pgtcl.html" class="page-previous" title="Перейти к предыдущей странице">‹ Доступ к PostgreSQL из программ на языке Tcl</a>
+                    <a href="/devdocs.html" class="page-up" title="К родительской странице">наверх</a>
+                    <a href="/docs/devgist.html" class="page-next" title="Перейти к следующей странице">Написание расширений для PostgreSQL с использованием GiST ›</a>
+          </div>
+    
+  </div>
+  </div>
+  
+      <div class="links">
+      <ul class="links inline"><li class="comment_forbidden first last"><span><a href="/user/login?destination=comment%2Freply%2F214152%23comment-form">Войдите</a> или <a href="/user/register?destination=comment%2Freply%2F214152%23comment-form">зарегистрируйтесь</a>, чтобы добавлять комментарии</span></li>
+</ul>    </div>
+   
+</div>
+				<span class="clear"></span>
+								<p><a href="#top" class="to-top">Back to top</a></p>
+      		  </div><!-- /center -->
+
+   	       	  <div id="sidebar-right" class="sidebar">
+   	  <div id="block-block-4" class="block block-block">
+
+
+  	<div class="content"><div class="sape">
+<noindex>Тут могла бы быть ваша реклама!</noindex></div>
+</div>    
+</div>
+<div id="block-blog-0" class="block block-blog">
+
+  <h2 class="title"> Последние записи в блоге</h2>
+
+  	<div class="content"><div class="item-list"><ul><li class="first"><a href="/node/215718">При записи файла на диск, сохраняет служебные символы</a></li>
+<li><a href="/node/215710">Запрос на выборку данных с группировкой по суткам</a></li>
+<li><a href="/node/215546">Функция для вывода текущего времени в формате unixtime</a></li>
+<li><a href="/node/215475">Вышел новый PostgreSQL ODBC драйвер 1.4 </a></li>
+<li><a href="/node/215446">Релиз новой версии PostgreSQL ODBC драйвера 1.2</a></li>
+<li><a href="/node/215438">Не пугайтесь рекламы!</a></li>
+<li><a href="/node/215431">Вышел новый dbExpress драйвер для PostgreSQL и новые Delphi компоненты доступа к базам данным PostgreSQL </a></li>
+<li><a href="/node/215403">Вышел PostgreSQL ODBC драйвер</a></li>
+<li><a href="/node/215228">Кириллица в psql под Windows</a></li>
+<li class="last"><a href="/node/215188">Вышел PostgreSQL 9.3</a></li>
+</ul></div><div class="more-link"><a href="/blog" title="Читать последние записи блога.">далее</a></div></div>    
+</div>
+<div id="block-forum-1" class="block block-forum">
+
+  <h2 class="title"> Новые темы на форуме</h2>
+
+  	<div class="content"><div class="item-list"><ul><li class="first"><a href="/node/215751">1c и PotgreSQL</a></li>
+<li><a href="/node/215750">Как сформировать в запросе название поля, используя переменную.</a></li>
+<li><a href="/node/215749">После восстановления нет нужной таблицы, однако после выполнения любой DDL-команды, она появляется</a></li>
+<li><a href="/node/215748">Восстановление таблицы</a></li>
+<li class="last"><a href="/node/215746">Как найти значения в поле &#039;username&#039;  в кодировке, отличной от UTF-8</a></li>
+</ul></div><div class="more-link"><a href="/forum" title="Читать последние темы на форуме.">далее</a></div></div>    
+</div>
+     	  </div><!-- /sidebar-right -->
+   	  
+			<div class="clear"></div>
+			</div><!-- /main -->
+
+		  <div id="pgFooter"> 
+      	  (С) Виктор Вислобоков, 2008-2023		  </div>
+  		</div><!-- /wrapper-main -->
+	  </div>
+	</div>
+  	
+  </body>
+</html>

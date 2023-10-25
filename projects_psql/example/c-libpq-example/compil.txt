@@ -1,0 +1,8 @@
+компилировать в C:\Strawberry\c\bin
+g++ libpq_example.c  -o example -std=c++14 -I/usr/include/postgresql/ -lpq -lpthread
+g++ password_auth.c  -o password_auth -std=c++14 -I/usr/include/postgresql/ -lpq -lpthread
+g++ create_table.c  -o create_table -std=c++14 -I/usr/include/postgresql/ -lpq -lpthread
+g++ query_version.c  -o query_version -std=c++14 -I/usr/include/postgresql/ -lpq -lpthread
+g++ multiple_rows.c -o multiple_rows -std=c++14 -I/usr/include/postgresql/ -lpq -lpthread
+//g++ prepared_statement.c -o prepared_statement -std=c++14 -I/usr/include/postgresql/ -lpq -lpthread
+g++ insert_db.c -o insert_db -std=c++14 -I/usr/include/postgresql/ -lpq -lpthread

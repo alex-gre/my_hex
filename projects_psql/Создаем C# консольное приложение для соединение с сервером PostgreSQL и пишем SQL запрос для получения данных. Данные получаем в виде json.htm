@@ -1,0 +1,838 @@
+
+<html xmlns='http://www.w3.org/1999/xhtml' lang=''>
+	<HEAD>
+		<title>Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных. Данные получаем в виде json</title>
+		<link rel='shortcut icon' href='https://dir.by/images_css_js/images/icons/user_icon.gif'>
+		<meta http-equiv='Content-Type' content='text/html;charset=utf-8' >
+		<meta name='keywords' content='Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных. Данные получаем в виде json' />
+		<meta name='description' content='Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных. Данные получаем в виде json' />
+	   <meta name='viewport' content='width=1140' />
+	</HEAD>
+
+<BODY background='https://dir.by/images_css_js/images/root/spring/background.jpg?version=358' leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+
+<!-- text styles -->
+<link rel="stylesheet" href = "https://dir.by/images_css_js/css/text.css?version=358" type="text/css" media="screen" />
+
+
+
+<!-- !!!!!!!!! START my modal -->
+	<script type="text/javascript" src  = "https://dir.by/images_css_js/js/post_url.js?version=358"                       ></script>
+
+	<style>
+		.modal-dialog {
+			position: absolute;
+			width: auto;
+			pointer-events: none;
+			z-index: 2;
+			max-width: fit-content;
+		}
+
+		.modal-content {
+			position: relative;
+			display: flex;
+			-webkit-box-orient: vertical;
+			-webkit-box-direction: normal;
+			flex-direction: column;
+			width: 100%;
+			pointer-events: auto;
+			background-color: #fff;
+			background-clip: padding-box;
+			border: 1px solid rgba(0,0,0,.2);
+			border-radius: 0.3rem;
+			outline: 0;
+		}
+	</style>
+
+	<!-- background -->
+	<div id='modal-background' style='position:fixed; padding:0; margin:0; top:0; left:0; width:100%; height:100%; opacity:0.8; background-color:gray; z-index:1; display:none;'></div>
+
+	<!-- Modal template -->
+	<div id="modal-template" style='display:none;         width:100vw; align-items: center; justify-content: center;' >
+	    <div class="modal-dialog">
+
+			<div style="text-align:right; pointer-events: auto;">
+				<button type="button" onclick="CloseDialog();">&times;</button>
+   	    	</div>
+
+        	<!-- Modal content-->
+    	    <div class="modal-content" style='pointer-events: auto;'>
+
+	            <div id="modal-body" style='margin: 20px;'>
+            	</div>
+
+        	</div>
+
+    	</div>
+	</div>
+
+	<script>
+	function OpenDialog(parentDiv, urlContent)
+	{
+		parentDiv.appendChild(document.getElementById('modal-template'));
+
+        document.getElementById('modal-background').style.display = "block";
+
+        document.getElementById('modal-template').style.display = "flex";  // !!!!!
+    
+		document.getElementById('modal-body').innerHTML = "";
+
+		post_url(urlContent, "", function(text_from_server) 
+		{ 
+			document.getElementById('modal-body').innerHTML = text_from_server;
+		});
+	}
+	
+	function CloseDialog()
+	{
+		document.getElementById('modal-body').innerHTML = "";
+
+        document.getElementById('modal-background').style.display = "none"; // hide
+
+        document.getElementById('modal-template').style.display = "none"; // hide
+	}
+	</script>
+
+<!-- !!!!!!!!!!!!! END my modal -->
+
+
+
+
+
+
+
+
+
+
+<div style="background-repeat:repeat-x; background-image:url(https://dir.by/images_css_js/images/root/spring/header_background.jpg?version=358);  height:70px; vertical-align:top;">
+
+	<div style='display:inline-block; height:70px; text-align:center; width:200px; padding-top:18px; margin-left:15px; vertical-align:top;'>
+		<a style='color:#0A0490; background-color:white; font-size:24px; font-weight:600; text-decoration:none; border1-bottom-color:#8080BA; border1-bottom-style:dotted; border1-bottom-width:2px;' href='https://dir.by'>
+			&nbsp;<b>dir.by</b> &nbsp;
+		</a>
+		<!--
+		<BR><font style='background-color:#ff9966'>Сайт <b>dream-land.by</b></font>
+		<BR><font style='background-color:#00FF99'>перенесен на <b>dir.by</b></font>
+		-->
+	</div>
+	
+	<!-- tree -->
+	<div1 style='display:inline-block; width:130px; padding-left:0px; padding-top:16px; vertical-align:top;'>
+		<img border= 0' src='https://dir.by/images_css_js/images/root/spring/header_thumb.png?version=358' />
+	</div1>
+
+	<!-- Login & Search -->
+	<div style='display:inline-block; padding-left:0px; padding-top:10px; vertical-align:middle; padding-right:0px;'>
+		
+
+<!-- js -->
+<script type="text/javascript" src="https://dir.by/images_css_js/js/post_url.js?version=358"></script>
+
+
+
+<div id='login_header_id'></div>
+
+<script>
+	GetHtmlLoginHeader("https://dir.by/user_handler/user_handler_login.php", "", (text_from_server) =>
+	{
+		document.getElementById("login_header_id").innerHTML = text_from_server;
+	});
+
+	GetHtmlLoginHeaderWhenFacebookStatusConnected("https://dir.by/user_handler/user_handler_login.php", "", (text_from_server) =>
+	{
+		document.getElementById("login_header_id").innerHTML = text_from_server;
+	});
+/*
+	// show header
+	post_url("https://dir.by/user_handler/user_handler_login.php", "GET_HTML_LOGIN_HEADER=yes&CUR_LANG=", (text_from_server) =>
+	{
+		document.getElementById("login_header_id").innerHTML = text_from_server;
+	});
+
+	// Facebook init
+	FacebookInit( function(fb) {
+
+		// get Facebook status
+		fb.getLoginStatus(function(response)
+		{
+			if (response.status === 'connected')
+			{
+				// get Facebook user info
+				fb.api('/me', 'get', { fields: 'id, first_name, last_name, email' }, function (response)
+				{
+					// alert(response.first_name);
+					post_url("https://dir.by/user_handler/user_handler_login.php", "GET_HTML_LOGIN_HEADER=yes&FACEBOOK_USER_ID=" + response.id + "&FACEBOOK_USER_FIRST_NAME=" + response.first_name + "&FACEBOOK_USER_LAST_NAME=" + response.last_name + "&FACEBOOK_USER_EMAIL=" + response.email + "&CUR_LANG=", (text_from_server) =>
+					{
+						document.getElementById("login_header_id").innerHTML = text_from_server;
+					});
+				});    
+			} 
+
+		});
+	});
+*/
+</script>
+
+
+	</div>
+
+	<!-- Search -->
+	
+
+	<div style='display:inline-block; float:right; vertical-align:middle; padding-top:4px; padding-right:5px;' class='body_text'>
+		<font style='background-color:#F5F9DB;'>&nbsp; Поиск &nbsp;</font>
+		<BR>
+		<input id="search_text" name="search_text" type="text" size="28" onkeydown="keyDown(event)" value=''>
+		<a href='javascript:show_search_results();'><img src='https://dir.by/images_css_js/images/find.png' border='3' style='margin-bottom:-10px; border-color:white;'/></a>
+	</div>
+</div>
+	
+<!-- Поздравляем с Новым Годом! -->
+
+
+
+<script language='JavaScript'>
+	function keyDown(event) 
+	{
+		var key = event.keyCode;
+		if (key==13) 
+		{
+			show_search_results();
+		}
+	}
+
+	function show_search_results() 
+	{
+		window.location.href = "https://dir.by/search.php?search_text="+document.getElementById("search_text").value;
+	}
+</script>
+
+<div style='background-image:url(https://dir.by/images_css_js/images/root/spring/background.jpg?version=358); padding-top:10px;'>
+
+	
+				<figure style='; width:55px; display:inline-block; margin-left:10px; margin-right:10px; margin-top:0px; margin-bottom:0px; padding-left:3px; padding-right:3px; padding-top:3px; padding-bottom:3px;'>
+					<a href='https://dir.by/developer/postgresql/csharp_console_application_sql_json/?lang=eng'>
+						<img src='https://dir.by/images_css_js/images/language/country/velikobritaniya.gif' border=0 alt='' style='width:100%;'>
+					</a>								    
+					<figcaption align='center' class='body_text' style=''>
+						<a href='https://dir.by/developer/postgresql/csharp_console_application_sql_json/?lang=eng'>
+					<!--		<font color='blue'>English</font> -->
+						</a>								    
+					</figcaption>
+				</figure>
+				<figure style='background-color:gold;; width:55px; display:inline-block; margin-left:10px; margin-right:10px; margin-top:0px; margin-bottom:0px; padding-left:3px; padding-right:3px; padding-top:3px; padding-bottom:3px;'>
+					<a href='https://dir.by/developer/postgresql/csharp_console_application_sql_json'>
+						<img src='https://dir.by/images_css_js/images/language/country/russia.gif' border=0 alt='' style='width:100%;'>
+					</a>								    
+					<figcaption align='center' class='body_text' style=''>
+						<a href='https://dir.by/developer/postgresql/csharp_console_application_sql_json'>
+					<!--		<font color='blue'><b>русский</b></font> -->
+						</a>								    
+					</figcaption>
+				</figure>
+
+	<div style='padding-left:15px; padding-top:15px;'>
+		<div> <div style='border: 1px dotted gray; display:inline-block; background-color:#f9f5db; margin-top:2px; padding-top:5px; padding-left:5px; padding-bottom:5px; padding-right:5px;'><b><a href='https://dir.by/developer' class='path_link'>Программирование, разработка, тестирование</a></b></div> →  <div style='border: 1px dotted gray; display:inline-block; background-color:#f9f5db; margin-top:2px; padding-top:5px; padding-left:5px; padding-bottom:5px; padding-right:5px;'><b><a href='https://dir.by/developer/postgresql' class='path_link'>PostgreSQL сервер (база данных) и pgAdmin (программа для работы с PostgreSQL сервер). Работает на разных платформах: Unix, Windows</a></b></div> →  <div style='border: 1px dotted gray; display:inline-block; background-color:#f9f5db; margin-top:2px; padding-top:5px; padding-left:5px; padding-bottom:5px; padding-right:5px;'> <b><font class='path_text'>Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных. Данные получаем в виде json</font></b> </div></div>
+				<div align='left' style='margin-top:7px; margin-bottom:5px; padding-top:8px; padding-left:0px;' class='body_text'>
+					
+			<font color='green' style='background-color:white;'>
+				&nbsp; Посмотрели <b>3259</b> раз(а) &nbsp;&nbsp;&nbsp;
+			</font>
+				</div>
+	</div>
+
+	<div id="left_panel_id" style="vertical-align:top; display:table-cell; width:82%; text-align:left; padding-left:10px; padding-right:0px; padding-top:0px;">
+		
+			<fieldset style='background-color:white; padding-bottom:10px; margin-top:10px;'>
+		
+				<legend id='go_to_' style='margin-left:1px; padding-left:0px;'>
+					<font class='body_title'><font class='body_title' style='background-color:yellow;'>&nbsp;Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных. Данные получаем в виде json&nbsp;</font></font>
+			</legend>
+			
+				<div><font class='body_text'></font><div style='text-align:right; margin-top:-15px;' class='body_text'>последнее обновление: 22 сентября 2021</div></div>
+			
+				<div id='go_to_13821' style='padding-top:16px;padding-left:18px; margin-bottom:1px;'>
+					<font id='' style='' class='body_title'><font style='background-color:orange'>Шаг 1.</font> Создаем C# приложение</font>
+				</div>
+				
+				<div id='go_to_13822' class='body_text' style='padding-left:18px;'>
+					<a href='https://dir.by/developer/csharp/console_application' target='_blank' style='color:blue;' >Создаем новое C# консольное приложение...</a>
+				</div>
+			
+				<div id='go_to_13823' style='padding-top:16px;padding-left:18px; margin-bottom:1px;'>
+					<font id='' style='' class='body_title'><font style='background-color:orange'>Шаг 2.</font> Добавим nuget package "npgsql"</font>
+				</div>
+				
+				<figure id='go_to_13824' style='display:inline-block; padding-top:20px; padding-bottom:10px; margin-left:6px; margin-top:4px; margin-right:0px; margin-bottom:0px;'>
+					<a href='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210918_230604_.jpg' target='_blank'>
+						<img src='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210918_230604_.jpg' border=0 alt='' style='min-width:20px; max-width:100%; ; border: 3px solid lightblue;'>
+					</a>								    
+				   <figcaption align='center' class='body_picture_text' style=''>
+						
+					</figcaption>
+			   </figure>
+				
+				<div id='go_to_13825' style='padding-top:16px;padding-left:18px; margin-bottom:1px;'>
+					<font id='' style='' class='body_title'><font style='background-color:orange'>Шаг 3.</font> Добавим nuget package "Newtonsoft.json" для конвертации текста в формате json в C# класс</font>
+				</div>
+				
+				<figure id='go_to_13827' style='display:inline-block; padding-top:20px; padding-bottom:10px; margin-left:6px; margin-top:4px; margin-right:0px; margin-bottom:0px;'>
+					<a href='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_013507_.jpg' target='_blank'>
+						<img src='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_013507_.jpg' border=0 alt='' style='min-width:20px; max-width:100%; ; border: 3px solid lightblue;'>
+					</a>								    
+				   <figcaption align='center' class='body_picture_text' style=''>
+						
+					</figcaption>
+			   </figure>
+				
+				<div id='go_to_13828' style='padding-top:16px;padding-left:18px; margin-bottom:1px;'>
+					<font id='' style='' class='body_title'><font style='background-color:orange'>Шаг 4.</font> Добавим код для соединения с сервером PostgreSQL и SQL запрос для получения данных</font>
+				</div>
+					<div id='go_to_13826' style='width=500;; display:inline-block; vertical-align:top;; padding-right:20px; padding-left:11px; padding-bottom:10px; padding-top:3px;' class='body_html_code'>			<font class='body_text' style='background-color:#D0D0D0; border-left-color:#A0A0A0; border-left-style:dashed; border-left-width:1px; border-top-color:#A0A0A0; border-top-style:dashed; border-top-width:1px; border-right-color:#A0A0A0; border-right-style:dashed; border-right-width:1px;'>			&nbsp; C# &nbsp;		</font>					<font class='body_text'>&nbsp; Добавим код в файл <b><font color='#404040'>Program.cs</font></b></font>		<div class='table_html_code' style=';'><font color='#0000FF'>using</font> Newtonsoft.Json;
+<BR><font color='#0000FF'>using</font> Npgsql;
+<BR><font color='#0000FF'>using</font> System;
+<BR><font color='#0000FF'>using</font> System.Collections.Generic;
+<BR><font color='#0000FF'>using</font> System.Linq;
+<BR><font color='#0000FF'>using</font> System.Text;
+<BR><font color='#0000FF'>using</font> System.Threading.Tasks;
+<BR>
+<BR><font color='#0000FF'>namespace</font> ConsoleApp1
+<BR>{
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>static</font> <font color='#0000FF'>class</font> <b>UtilsPostgres</b>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>static</font> NpgsqlConnection <b><font color='green'>Connect</font></b>(<font color='#0000FF'>string</font> connectionString)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; NpgsqlConnection conn = <font color='#0000FF'>new</font> NpgsqlConnection(connectionString);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>try</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; conn.Open();
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>catch</font> (Exception e)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; throw <font color='#0000FF'>new</font> Exception(<font color='#A31515'>&#34;Error connecting to the database&#34;</font>, e);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>return</font> conn;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>static</font> <font color='#0000FF'>async</font> Task <b><font color='green'>ExecuteSelectAsJson</font></b>(NpgsqlConnection conn, <font color='#0000FF'>string</font> sql, Action&lt;<font color='#0000FF'>string</font>&gt; callback)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>try</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>using</font> (var command = conn.CreateCommand())
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; command.CommandText = sql;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; var result = await command.ExecuteScalarAsync();
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>if</font> (result is <font color='#0000FF'>string</font> json)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; callback(json);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>catch</font> (Exception e)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>class</font> <b>City</b>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>int</font> CityId { get; set; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>string</font> CityName { get; set; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>class</font> <b>Program</b>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>static</font> <font color='#0000FF'>async</font> Task Main(<font color='#0000FF'>string</font>[] args)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// connect</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>string</font> connectionString = <font color='#A31515'>&#34;Server=localhost; Port=5432; Database=postgres; UserId=postgres; Password=evgen12345; commandTimeout=120;&#34;</font>;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; var conn = UtilsPostgres.Connect(connectionString);
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// getting data</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>string</font> sql = $@<font color='#A31515'>&#34;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SELECT json_agg(row_to_json(cities))
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; FROM
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; (
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SELECT
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; id AS CityId,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; name AS CityName
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; FROM city
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ) AS cities;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &#34;</font>;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; await UtilsPostgres.ExecuteSelectAsJson(conn, sql, json =&gt; {
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// show json</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>Console</font>.WriteLine(json);
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// convert json to list</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; var cities = JsonConvert.DeserializeObject&lt;List&lt;City&gt;&gt;(json);
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// show list</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>foreach</font> (var item <font color='#0000FF'>in</font> cities)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>Console</font>.WriteLine($<font color='#A31515'>&#34;{item.CityId} {item.CityName}&#34;</font>);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; });
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>Console</font>.ReadLine();
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>}</div></div>
+				<div id='go_to_13829' style='padding-top:16px;padding-left:18px; margin-bottom:1px;'>
+					<font id='' style='' class='body_title'>Запустим программу и увидим результат</font>
+				</div>
+				
+				<figure id='go_to_13830' style='display:inline-block; padding-top:20px; padding-bottom:10px; margin-left:6px; margin-top:4px; margin-right:0px; margin-bottom:0px;'>
+					<a href='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_013947_.jpg' target='_blank'>
+						<img src='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_013947_.jpg' border=0 alt='' style='min-width:20px; max-width:100%; ; border: 3px solid lightblue;'>
+					</a>								    
+				   <figcaption align='center' class='body_picture_text' style=''>
+						
+					</figcaption>
+			   </figure>
+				
+				<div id='go_to_13839' class='body_text' style='padding-left:18px;'>
+					<a href='https://dir.by/developer/postgresql/add_data_in_table_city/' target='_blank' style='color:blue;' >Посмотрите какие данные в таблице "city" ...</a>        на всякий случай        <a href='https://dir.by/developer/postgresql/create_tables/' target='_blank' style='color:blue;' >создание таблицы "city" ...</a><BR>&nbsp;
+				</div>
+			
+				<div id='go_to_13831' style='padding-top:16px;padding-left:18px; margin-bottom:1px;'>
+					<font id='' style='' class='body_title'><font style='background-color:lightgreen'>На заметку! Параметры для соединения с сервером PostgreSQL</font></font>
+				</div>
+					<div id='go_to_13832' style='width=500;; display:inline-block; vertical-align:top;; padding-right:20px; padding-left:11px; padding-bottom:10px; padding-top:3px;' class='body_html_code'>	<div class='table_html_code' style=';'><font color='#0000FF'>string</font> connectionString = <font color='#A31515'>&#34;Server=localhost; Port=5432; Database=postgres; UserId=postgres; Password=evgen12345; commandTimeout=120;&#34;</font>;</div></div>
+				<div id='go_to_13833' class='body_text' style='padding-left:18px;'>
+					Параметры берутся вот здесь:<BR><BR>Открываем <b><font color='#404040'>pgAdmin</font></b>
+				</div>
+			
+			<div style='background-color:white; border-top-width:0px; border-bottom-width:0px; border-left-width:0px; border-right-width:0px; padding-top:0px; padding-bottom:0px; padding-left:0px; padding-right:0px; margin-top:5px; margin-bottom:0px; margin-left:0px; margin-right:0px;'>
+		
+				<div><font class='body_text'></font></div>
+			
+				<figure id='go_to_12940' style='display:inline-block; padding-top:20px; padding-bottom:10px; margin-left:6px; margin-top:4px; margin-right:0px; margin-bottom:0px;'>
+					<a href='https://dir.by/show_picture.php?DEVELOPER_ID=1334&PICTURE=body_src_20210318_010929_.jpg' target='_blank'>
+						<img src='https://dir.by/show_picture.php?DEVELOPER_ID=1334&PICTURE=body_src_20210318_010929_.jpg' border=0 alt='' style='min-width:20px; max-width:100%; ; border: 3px solid lightblue;'>
+					</a>								    
+				   <figcaption align='center' class='body_picture_text' style=''>
+						
+					</figcaption>
+			   </figure>
+				
+				<div id='go_to_12939' class='body_text' style='padding-left:18px;'>
+					Если иконки <b><font color='#404040'>pgAdmin</font></b> нет на рабочем столе в <b><font color='#404040'>Windows</font></b> тогда запускаем файл:<BR><b><font color='#404040'>C:\Program Files\pgAdmin 4\v4\runtime\pgAdmin4.exe</font></b>
+				</div>
+				
+		</div>
+	
+				<figure id='go_to_13835' style='display:inline-block; padding-top:20px; padding-bottom:10px; margin-left:6px; margin-top:4px; margin-right:0px; margin-bottom:0px;'>
+					<a href='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_014112_.jpg' target='_blank'>
+						<img src='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_014112_.jpg' border=0 alt='' style='min-width:20px; max-width:100%; ; border: 3px solid lightblue;'>
+					</a>								    
+				   <figcaption align='center' class='body_picture_text' style=''>
+						
+					</figcaption>
+			   </figure>
+				
+				<div id='go_to_13836' class='body_text' style='padding-left:18px;'>
+					<b><font color='#404040'>Password</font></b> берется при создании базы данных.<BR><a href='https://dir.by/developer/postgresql/install_postgresql' target='_blank' style='color:blue;' >Вот здесь мы его написали (скачиваем и устанавливаем PostgreSQL сервер (база данных)...</a>
+				</div>
+			
+				<figure id='go_to_13837' style='display:inline-block; padding-top:20px; padding-bottom:10px; margin-left:6px; margin-top:4px; margin-right:0px; margin-bottom:0px;'>
+					<a href='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_014142_.jpg' target='_blank'>
+						<img src='https://dir.by/show_picture.php?DEVELOPER_ID=1427&PICTURE=body_src_20210919_014142_.jpg' border=0 alt='' style='min-width:20px; max-width:100%; ; border: 3px solid lightblue;'>
+					</a>								    
+				   <figcaption align='center' class='body_picture_text' style=''>
+						
+					</figcaption>
+			   </figure>
+				
+				<div id='go_to_13840' style='padding-top:16px;padding-left:18px; margin-bottom:1px;'>
+					<font id='' style='' class='body_title'><font style='background-color:lightblue'>Еще! Расширяем sql чтобы в json брать данные из таблицы "person" и связанной таблицы "city"</font></font>
+				</div>
+					<div id='go_to_13841' style='width=500;; display:inline-block; vertical-align:top;; padding-right:20px; padding-left:11px; padding-bottom:10px; padding-top:3px;' class='body_html_code'>			<font class='body_text' style='background-color:#D0D0D0; border-left-color:#A0A0A0; border-left-style:dashed; border-left-width:1px; border-top-color:#A0A0A0; border-top-style:dashed; border-top-width:1px; border-right-color:#A0A0A0; border-right-style:dashed; border-right-width:1px;'>			&nbsp; C# &nbsp;		</font>					<font class='body_text'>&nbsp; Добавим код в файл <b><font color='#404040'>Program.cs</font></b></font>		<div class='table_html_code' style=';'><font color='#0000FF'>using</font> Newtonsoft.Json;
+<BR><font color='#0000FF'>using</font> Npgsql;
+<BR><font color='#0000FF'>using</font> System;
+<BR><font color='#0000FF'>using</font> System.Collections.Generic;
+<BR><font color='#0000FF'>using</font> System.Linq;
+<BR><font color='#0000FF'>using</font> System.Text;
+<BR><font color='#0000FF'>using</font> System.Threading.Tasks;
+<BR>
+<BR><font color='#0000FF'>namespace</font> ConsoleApp1
+<BR>{
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>static</font> <font color='#0000FF'>class</font> <b>UtilsPostgres</b>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>static</font> NpgsqlConnection <b><font color='green'>Connect</font></b>(<font color='#0000FF'>string</font> connectionString)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; NpgsqlConnection conn = <font color='#0000FF'>new</font> NpgsqlConnection(connectionString);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>try</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; conn.Open();
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>catch</font> (Exception e)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; throw <font color='#0000FF'>new</font> Exception(<font color='#A31515'>&#34;Error connecting to the database&#34;</font>, e);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>return</font> conn;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>static</font> <font color='#0000FF'>async</font> Task <b><font color='green'>ExecuteSelectAsJson</font></b>(NpgsqlConnection conn, <font color='#0000FF'>string</font> sql, Action&lt;<font color='#0000FF'>string</font>&gt; callback)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>try</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>using</font> (var command = conn.CreateCommand())
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; command.CommandText = sql;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; var result = await command.ExecuteScalarAsync();
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>if</font> (result is <font color='#0000FF'>string</font> json)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; callback(json);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>catch</font> (Exception e)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; <font style='background-color:lightblue'>public <font color='#0000FF'>class</font> <b>Person</b>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>int</font> PersonId { get; set; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>string</font> FirstName { get; set; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>string</font> LastName { get; set; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; }</font>
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>class</font> <b>City</b>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>int</font> CityId { get; set; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>public</font> <font color='#0000FF'>string</font> CityName { get; set; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font style='background-color:lightblue'>public <font color='#2B91AF'>List</font>&lt;Person&gt; Persons { get; set; }</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>class</font> <b>Program</b>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>static</font> <font color='#0000FF'>async</font> Task Main(<font color='#0000FF'>string</font>[] args)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// connect</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>string</font> connectionString = <font color='#A31515'>&#34;Server=localhost; Port=5432; Database=postgres; UserId=postgres; Password=evgen12345; commandTimeout=120;&#34;</font>;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; var conn = UtilsPostgres.Connect(connectionString);
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// getting data</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>string</font> sql = $@<font color='#A31515'>&#34;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SELECT json_agg(row_to_json(aaa))
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; FROM
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; (
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SELECT
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; id AS CityId,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; name AS CityName,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font style='background-color:lightblue'>(
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SELECT json_agg(row_to_json(bbb))
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; FROM
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; (
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SELECT
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; id AS PersonId,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; first_name AS FirstName,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; last_name AS LastName
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; FROM person
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; WHERE person.city_id=city.id
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ) AS bbb
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ) AS Persons</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; FROM city
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ) AS aaa;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &#34;</font>;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; await UtilsPostgres.ExecuteSelectAsJson(conn, sql, json =&gt; {
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// show json</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>Console</font>.WriteLine(json);
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// convert jsobn to list</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; var cities = JsonConvert.DeserializeObject&lt;List&lt;City&gt;&gt;(json);
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='green'>// show list</font>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>foreach</font> (var item <font color='#0000FF'>in</font> cities)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>Console</font>.WriteLine($<font color='#A31515'>&#34;{item.CityId} {item.CityName}&#34;</font>);
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; });
+<BR>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <font color='#0000FF'>Console</font>.ReadLine();
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; }
+<BR>}</div></div>
+				<div id='go_to_13842' class='body_text' style='padding-left:18px;'>
+					<a href='https://dir.by/developer/postgresql/add_data_in_table_city/' target='_blank' style='color:blue;' >Посмотрите какие данные в таблице "city" ...</a>        на всякий случай        <a href='https://dir.by/developer/postgresql/create_tables/' target='_blank' style='color:blue;' >создание таблицы "city" ...</a><BR><BR><a href='https://dir.by/developer/postgresql/add_data_in_table_person/' target='_blank' style='color:blue;' >Посмотрите какие данные в таблице "person" ...</a>        на всякий случай        <a href='https://dir.by/developer/postgresql/create_table_with_forign_key/' target='_blank' style='color:blue;' >создание таблицы "person" ...</a>
+				</div>
+				
+		</fieldset>
+	<div style='padding-top:15px; width:100%;'><div style='display:table-cell; width:3%;'>&nbsp;</div>
+				<div style='display:table-cell; width:45%; background-color:lightyellow;'>
+					<center>
+						<a href='https://dir.by/developer/postgresql/csharp_console_application_sql_reader' class='body_title' style='text-decoration:none;'>
+							<font color='blue' style='border-bottom-color: #0066D2; border-bottom-style:dotted; border-bottom-width:1px;'>
+								← Предыдущая тема 
+							</font>
+						</a>
+						<BR>
+						<font class='body_text'>
+							Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных
+						</font>
+					</center>
+				</div><div style='display:table-cell;'>&nbsp;</div>
+				<div style='display:table-cell; width:45%; background-color:lightyellow;'>
+					<center>
+						<a href='https://dir.by/developer/postgresql/sql_add_auto_increment' class='body_title' style='text-decoration:none;'>
+							<font color='blue' style='border-bottom-color: #0066D2; border-bottom-style:dotted; border-bottom-width:1px;'>
+								Следующая тема → 
+							</font>
+						</a>
+						<BR>
+						<font class='body_text'>
+							Добавляем auto increment когда колонка уже создана(PostgreSQL запросы)
+						</font>
+					</center>
+				</div><div style='display:table-cell; width:3%;'>&nbsp;</div></div>
+
+<!-- js -->
+<script type="text/javascript" src="https://dir.by/images_css_js/js/post_url.js?version=358"></script>
+
+<div style='background-color1:white; padding-bottom:1px; margin-top:20px;'>
+
+	<div style='background-color:orange; margin-top:10px; padding-bottom:10px;'>
+		<img src='https://dir.by/images_css_js/images/comment/comment.gif' border='0' />
+
+		
+			<font class='body_title'>Ваши Отзывы ... комментарии... </font>
+		
+
+		
+	</div>
+
+	<a name='comment'>&nbsp;</a>
+
+
+	<!-- место для добавления комментария -->
+	<a name='comment_add'>&nbsp;</a>
+	
+				
+		
+		<form method="POST" action='https://dir.by/user_handler/user_handler_comment_otvetit.php' enctype='multipart/form-data'>
+	   
+			<input type='hidden' name='PARENT_COLUMN_NAME'   value="DEVELOPER_ID">
+			<input type='hidden' name='PARENT_COLUMN_VALUE'  value="1427">
+			<input type='hidden' name='ADD_COMMENT'  			 value="yes">
+			<input type='hidden' name='LOGIN_NAME'   			 value="">
+			<input type='hidden' name='CUR_PAGE' 				 value='https://www.dir.by/developer/postgresql/csharp_console_application_sql_json/index.php'>
+	   
+			<input type='hidden' name='PARENT_COMMENT_ID'	 id='PARENT_COMMENT_ID' value=''>
+	   
+			<div style='background-color:#E9D5CB; margin-right:0px; margin-left:0px;'>
+
+				<!-- текст комментария -->
+				<div style='padding-top:10px; padding-left:10px; padding-bottom:10px;'>
+					
+						
+						<font color='black'>Вашe имя:</font>
+						<input type='text' name='USER_NAME' id='USER_NAME' placeholder='гость' value=''  size='26' style='height:20px; border:#b0b0b0 2px dotted; color:black; padding:3px; font-size:14px; background-color:#E9D5CB;'>
+					
+
+					<div  style='padding-top:24px; padding-bottom:2px;'>
+						<font class='body_title'><font style='font-size:21px; background-color:orange;' color='green'>Ваш комментарий</font></font>
+						
+							<font style='color:gray;'>(www ссылки может добавлять только залогиненный пользователь)</font>
+						
+					</div>
+
+					<!-- div otvetit -->
+					<div id='id_otvetit'>
+					</div>
+
+					<!-- text for comment -->
+					<textarea rows='18' name='TEXT' id='TEXT' style='display:inline-block; min-width:100px; width:99%; border:gray 2px solid; color:black; padding:3px; font-size:16px; overflow:auto;'></textarea>
+				</div>
+
+				<hr>
+
+				<!-- добавить фото -->
+				<input type="hidden" name="last_image_index" id='last_image_index' value="0" />
+				<input type="hidden" name="MAX_FILE_SIZE"  value="120000000" />
+				<div style='vertical-align:top; padding-left:10px; padding-top:0px;'>
+					<div style='padding-left:12px; padding-top:10px;'>
+						<img src='https://dir.by/images_css_js/images/icons/add_picture_to_story.gif' align='left' style='margin-right:10px;'>
+						<font class='body_title'><font style='color:#5050A0;font-size:20px;'>Картинки <font style='font-weight:400'></font></font></font>
+					</div>
+					<div style='padding-bottom:15px;padding-top:5px;padding-right:0px;padding-left:10px; background-color:'>
+						<div id='div_for_images' style='padding-bottom:20px;'>
+						</div>
+						<a href="javascript:add_image_browse();" onclick='' style="text-decoration:none; background-color:yellow; font-size:21px; font-weight:600; color:blue">
+							&nbsp; + Фото &nbsp;
+						</a>
+					</div>
+				</div>
+ 
+				<hr>
+				
+				<!-- добавить комментарий -->
+				<div style='padding-top:14px; padding-left:200px; padding-bottom:30px;'>
+					<input type='submit' value=' Разместить комментарий ' style='cursor:hand; width:350px; color:red; height:50px; font-weight:700; font-size:20px; border:gray 2px solid;' >
+				</div>
+			</div>
+		</form>
+	
+
+</div>
+
+<script language='javascript'>
+
+	var gMaxFileIndex = 1;
+
+	function js_otvetit(column_name, column_value)
+	{
+		post_url("https://dir.by/user_handler/user_handler_comment_otvetit.php", "COMMENT_TEXT_WHEN_CLICK_OTVETIT=yes&PARENT_COLUMN_NAME="+column_name+"&PARENT_COLUMN_KEY="+column_value, function (msg)
+		{
+			var elemDiv = document.getElementById("id_otvetit");
+			if (elemDiv)
+				elemDiv.innerHTML = msg;
+
+			var elemHidden = document.getElementById("PARENT_COMMENT_ID");
+			if (elemHidden)
+				elemHidden.value = column_value;
+
+			window.location.href = "#comment";
+		});
+	}
+
+	function add_image_browse()
+	{
+		var elemDiv = document.getElementById("div_for_images");
+
+		// create BR
+		var elemBR = document.createElement("DIV");
+	   elemBR.id = 'br_'+ gMaxFileIndex;
+		elemBR.style["padding-top"] = '4px';
+		elemBR.style["padding-bottom"] = '12px';
+   	if (elemBR==null)
+			return;
+		elemDiv.insertAdjacentElement("BeforeEnd",elemBR);
+
+		// create Input
+		var elemInput = document.createElement("INPUT");
+   	if (elemInput==null)
+			return;
+	   elemInput.name = 'userfile_'+ gMaxFileIndex + "[]";
+	   elemInput.id = 'userfile_'+ gMaxFileIndex;
+	   elemInput.type = 'file';
+		elemInput.style.height = '22px';
+		elemInput.multiple = 'multiple';
+		elemDiv.insertAdjacentElement("BeforeEnd",elemInput);
+		
+		// create Image
+		var elemImg = document.createElement("IMG");
+	   elemImg.name = 'del_img_'+ gMaxFileIndex;
+	   elemImg.id = elemImg.name;
+	   elemImg.style["padding-left"] = "30px";
+   	if (elemImg==null)
+			return;
+	   elemImg.onclick = function()
+		{
+			var idImg = this.id;
+			var len1 = "del_img_".length;
+			var len2 = idImg.length;
+
+			// get id image
+			var strID = idImg.substring(len1, len2);
+			
+			var elemDiv = document.getElementById("div_for_images");
+			if (elemDiv==null)
+				return;
+
+			elemDiv.removeChild(document.getElementById('br_'+ strID));
+			elemDiv.removeChild(document.getElementById('userfile_'+ strID));
+			elemDiv.removeChild(document.getElementById('del_img_'+ strID));
+			elemDiv.removeChild(document.getElementById(this));
+		};
+
+	   elemImg.src = 'https://dir.by/images_css_js/images/icons/delete.jpg';
+		elemDiv.insertAdjacentElement("BeforeEnd",elemImg);
+
+		// set max index		
+		var elemLastImageIndex = document.getElementById("last_image_index");
+		elemLastImageIndex.value = gMaxFileIndex;
+
+		// add index
+		gMaxFileIndex++;
+
+		// browse image
+		elemInput.click();
+	}
+
+	function js_show_comments(div_elem, str_ids)
+	{
+		post_url("https://dir.by/user_handler/user_handler_comment_otvetit.php", "GET_LIST_COMMENTS=yes&LIST_COMMENT_IDS="+str_ids, function (msg)
+		{
+			div_elem.innerHTML = msg;
+		});
+	}
+</script><!-- яндекс реклама -->
+
+
+	</div>
+	
+	<div id='right_panel_id' style='vertical-align:top; display:table-cell; width:18%; padding-top:10px; padding-left:2px; padding-right:3px;'><div style='background-color:#D0E0D0; margin-bottom:20px; padding-bottom:20px;'><font class='body_title'><font style='background-color2:orange'>PostgreSQL сервер (база данных) и pgAdmin (программа для работы с PostgreSQL сервер). Работает на разных платформах: Unix, Windows</font></font> &nbsp;<div style='padding-top:25px;'><b>PostgreSQL сервер</b></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/about'><font color='blue'>Что такое база данных PostgreSQL сервер?</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/install_postgresql'><font color='blue'>Скачиваем и устанавливаем PostgreSQL сервер (база данных) на Windows</font></a></div><div style='padding-top:25px;'><b>Программа pgAdmin для работы с PostgreSQL сервер (работаем в Windows)</b></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/pgadmin_download'><font color='blue'>Скачиваем и устанавливаем pgAdmin (программа для работы с PostgreSQL) | Windows</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/remote'><font color='blue'>Открываем pgAdmin и конектимся к удаленному серверу PostgreSQL</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/sql_select'><font color='blue'>Открываем pgAdmin и пишем SQL запрос для выборки данных из сервера PostgreSQL</font></a></div><div style='padding-top:25px;'><b> </b></div><div style='padding-top:25px;'><b>Создаем таблицы</b></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/create_tables'><font color='blue'>Создаем таблицу "city" (используем pgAdmin, сервер PostgreSQL)</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/create_table_with_forign_key'><font color='blue'>Создаем таблицу "person" и связываем с таблицей "city" (используем pgAdmin, сервер PostgreSQL)</font></a></div><div style='padding-top:25px;'><b>Добавляем данные в таблицы</b></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/add_data_in_table_city'><font color='blue'>Добавляем данные в таблицу "city" (используем pgAdmin, сервер PostgreSQL)</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/add_data_in_table_person'><font color='blue'>Добавляем данные в таблицу "person" (используем pgAdmin, сервер PostgreSQL)</font></a></div><div style='padding-top:25px;'><b>C# приложение для для получения данных</b></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/csharp_console_application_sql_reader'><font color='blue'>Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/csharp_console_application_sql_json'><font color='blue'><font style='background-color:yellow;'>Создаем C# консольное приложение для соединение с сервером PostgreSQL и пишем SQL запрос для получения данных. Данные получаем в виде json</font></font></a></div><div style='padding-top:25px;'><b>PostgreSQL запросы</b></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/sql_add_auto_increment'><font color='blue'>Добавляем auto increment когда колонка уже создана(PostgreSQL запросы)</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/sql_change_type_boolean_in_bit'><font color='blue'>Меняем тип колонки с boolean в bit(1)  | PostgreSQL запросы</font></a></div><div style='padding-top:10px;'> • <a href='https://dir.by/developer/postgresql/sql_change_type_bit_in_boolean'><font color='blue'>Меняем тип колонки с bit(1) в boolean | PostgreSQL запросы</font></a></div></div></div>
+</div>
+
+<div style='background-image:url(https://dir.by/images_css_js/images/root/spring/background.jpg?version=358); margin-top:10px; padding-bottom:20px; vertical-align:middle;'>
+
+	<hr>
+
+	<div style='text-align:center; padding-bottom:15px;'>
+		<a href='https://dir.by'><img src='https://dir.by/images_css_js/images/visitka/small.png?version=358'></a>
+
+		<!--
+		<a style='color:#0A0490; background-color:white; font-size:24px; font-weight:600; text-decoration:none; border-bottom-color:#8080BA;border-bottom-style: dotted; border-bottom-width: 2px;' href='https://dir.by'>
+			<b>dir.by</b>&nbsp;
+		</a>
+		-->
+
+	</div>
+	
+	<center>
+	
+	</center>
+
+	<hr>
+
+	<!-- footer -->
+	<div>
+		<center>
+<!-- email, counter -->
+<div style='padding-left:40px; display:inline-block; vertical-align:middle;'>
+	<font style='background-color:white'>&nbsp; Ваши вопросы присылайте по почте: <a href='mailto:info@dir.by'>info@dir.by</a> &nbsp;</font>
+</div>
+
+<div style='padding-left:300px; display:inline-block; width:200px;'>
+	<!-- Yandex.Metrika informer -->
+<a href="https://metrika.yandex.ru/stat/?id=49335463&amp;from=informer"
+target="_blank" rel="nofollow"><img src="https://informer.yandex.ru/informer/49335463/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"
+style="width:88px; height:31px; border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" class="ym-advanced-informer" data-cid="49335463" data-lang="ru" /></a>
+<!-- /Yandex.Metrika informer -->
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(49335463, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/49335463" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</div>
+</center>
+
+	</div>
+
+</div>
